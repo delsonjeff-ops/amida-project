@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shabbat Amida · אָבוֹת</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f5f0e2;
+    font-family: 'Crimson Text', serif;
+    display: flex; align-items: center; justify-content: center; min-height: 100vh;
+  }
+  #app {
+    width: 480px; height: 100vh; max-height: 780px;
+    display: flex; flex-direction: column;
+    padding: 16px 20px 20px;
+    background: #f5f0e2;
+    border-left: 1px solid #ddd8c4; border-right: 1px solid #ddd8c4;
+  }
+  #section-label {
+    text-align: center; font-size: 13px; color: #9a8a6a;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 6px; font-style: italic;
+  }
+  #figure-area {
+    flex: 1; display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 0; min-height: 210px;
+  }
+  #figure { overflow: visible; }
+  #divider { width: 85%; height: 1px; background: #c8bc98; margin: 10px auto; }
+  #words-area { display: flex; flex-direction: column; gap: 22px; padding-top: 6px; }
+  .word-row { display: flex; flex-direction: row-reverse; justify-content: space-around; align-items: center; }
+  .word {
+    text-align: center; padding: 5px 7px; border-radius: 6px;
+    border: 2px solid transparent;
+    transition: color 0.25s, border-color 0.25s; cursor: pointer;
+  }
+  .word .heb { font-size: 26px; font-family: 'Frank Ruhl Libre', serif; color: #1a1008; line-height: 1.2; }
+  .word .translit { font-size: 16px; color: #7a6a4a; margin-top: 3px; font-style: italic; letter-spacing: 0.03em; }
+  .word.active .heb, .word.active .translit { color: #BA7517; }
+  .word.active { border-color: #BA7517; }
+  #controls { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  button {
+    padding: 7px 16px; border-radius: 20px; border: 1px solid #c8bc98;
+    background: #ede8d8; color: #3a2a10; font-size: 13px;
+    font-family: 'Crimson Text', serif; cursor: pointer; transition: background 0.15s;
+  }
+  button:hover { background: #ddd8c4; }
+  #btn-play {
+    background: #3a2a10; color: #f5f0e2; border-color: #3a2a10;
+    font-size: 15px; padding: 8px 24px; min-width: 100px;
+  }
+  #btn-play:hover { background: #5a4a30; }
+  #audio-note { text-align: center; font-size: 12px; color: #aaa; font-style: italic; margin-top: 8px; }
+  #audio-upload { display: block; margin: 0 auto 4px; font-size: 12px; color: #9a8a6a; cursor: pointer; }
+  #motion-cue {
+    text-align: center; font-size: 11px; color: #9a8a6a; font-style: italic;
+    height: 18px; margin-bottom: 2px; letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="section-label">Avot · אָבוֹת</div>
+
+  <div id="motion-cue"></div>
+
+  <div id="figure-area">
+    <svg id="figure" width="220" height="215" viewBox="0 0 220 215" xmlns="http://www.w3.org/2000/svg">
+      <!--
+        REVISED PROPORTIONS — 8-head canon, 1 unit ≈ 21px, canvas 220×215
+        Figure faces LEFT. Back = RIGHT side.
+
+        Joints (upright, all on x=110):
+          headC  (110, 56)   head oval rx=10 ry=13, chin≈69, neck gap to shoulder≈5px
+          spineTop (110, 74)  shoulder
+          spineBot (110, 137) hip
+          knee   (110, 180)  knee  [upright: knee=foot=spineBot for single-line leg]
+          foot   (110, 215)  foot
+
+        Tallit: square linecap for uniform width. Back (right) side offset +8px from spine.
+          p1 = bottom of tallit (near hip level)
+          p2 = top of tallit (at shoulder)
+        So lerp goes bottom→top consistently across all poses.
+
+        NOTES FOR LATER:
+          - Kippah shape/position needs a proper rework (currently approximate arc)
+          - Tallit in knees pose drifts slightly forward — needs perpendicular offset fix
+          - Tallit in bow should stay at shoulder height, not touch head
+      -->
+
+      <!-- Draw order: tallit → swing leg (behind) → stance leg → spine → arm → siddur → knee dots → head → kippah -->
+      <line id="el-tallit"      stroke="#5b8db8" stroke-width="3" stroke-linecap="square" opacity="0.75"/>
+      <line id="el-swing-thigh" stroke="#1a1008" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+      <line id="el-swing-shin"      stroke="#1a1008" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+      <line id="el-swing-foot-stub" stroke="#1a1008" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+      <circle id="el-swing-knee" fill="#1a1008" r="0" opacity="0.85"/>
+      <line id="el-shin"    stroke="#1a1008" stroke-width="5" stroke-linecap="round"/>
+      <line id="el-thigh"   stroke="#1a1008" stroke-width="5" stroke-linecap="round"/>
+      <line id="el-spine"   stroke="#1a1008" stroke-width="5" stroke-linecap="round"/>
+      <line id="el-arm-u"   stroke="#1a1008" stroke-width="5" stroke-linecap="round"/>
+      <line id="el-arm-l"   stroke="#1a1008" stroke-width="5" stroke-linecap="round"/>
+      <line id="el-siddur"  stroke="#1a1008" stroke-width="6" stroke-linecap="round"/>
+      <line id="el-foot-stub" stroke="#1a1008" stroke-width="4" stroke-linecap="round"/>
+      <circle id="el-hip"   fill="#1a1008" r="4"/>
+      <circle id="el-elbow" fill="#1a1008" r="4"/>
+      <circle id="el-knee"  fill="#1a1008" r="0"/>
+      <!-- Head is now an ellipse: rx=10 (narrow), ry=13 (taller) -->
+      <ellipse id="el-head" rx="10" ry="13" fill="none" stroke="#1a1008" stroke-width="5"/>
+      <!-- Tzitzit: thin white stripe on torso -->
+      <line id="el-tzitzit" stroke="white" stroke-width="1" stroke-linecap="butt" opacity="1"/>
+      <!-- Fedora: brim + crown, both rotate with head -->
+      <ellipse id="el-fedora-brim" fill="#1a3a6a" rx="16" ry="2"/>
+      <rect    id="el-fedora-crown" fill="#1a3a6a" width="18" height="10" rx="2"/>
+    </svg>
+  </div>
+
+  <div id="divider"></div>
+
+  <div id="words-area"></div>
+
+  <div id="controls">
+    <button id="btn-prev">← prev</button>
+    <button id="btn-play">▶ play</button>
+    <button id="btn-next">next →</button>
+    <button id="btn-section">next section ▸▸</button>
+    <button id="btn-test-steps" style="opacity:0.55;font-size:12px">⚙ test steps</button>
+  </div>
+
+  <label id="audio-upload">
+    📂 load audio file
+    <input type="file" accept="audio/*" id="audio-input" style="display:none"/>
+  </label>
+  <div id="audio-note">load an audio file to sync word highlighting</div>
+  <audio id="audio-player" style="display:none"></audio>
+</div>
+
+<script>
+// ── FK constants (8-head canon, 1 unit = 21px) ─────────────────
+const LIMBS = { shin: 42, thigh: 42, spine: 63, neck: 18, upperArm: 32, foreArm: 32, siddur: 16 };
+const FOOT_Y = 215;
+
+// SVG degrees: 0=right, 90=down, 180=left, 270=up
+function vec(deg) { const r = deg * Math.PI / 180; return [Math.cos(r), Math.sin(r)]; }
+function addScaled(pt, v, len) { return [pt[0] + v[0] * len, pt[1] + v[1] * len]; }
+
+// ═══════════════════════════════════════════════════════════════════
+//  FORWARD KINEMATICS ARCHITECTURE
+//
+//  Canvas: 220×215px. Figure faces LEFT. Back = RIGHT side of canvas.
+//  Angle convention: SVG degrees — 0=right, 90=down, 180=left, 270=up.
+//  vec(deg) → unit vector [cos, sin] in that direction.
+//
+//  LIMB LENGTHS (px, fixed, 8-head canon @ 1 unit = 21px):
+//    shin=42  thigh=42  spine=63  neck=18  upperArm=32  foreArm=32  siddur=16
+//
+//  FK CHAIN — fkCompute(pose) traces bottom-up from planted foot:
+//
+//    foot   = [footX, 215]                          ← always on ground
+//    knee   = foot     + vec(shinAngle)  * shin      ← shin segment
+//    hip    = knee     + vec(thighAngle) * thigh     ← thigh segment
+//    shoulder = hip    + vec(spineAngle) * spine     ← spine segment
+//    headC  = shoulder + vec(spineAngle) * neck      ← head follows spine
+//
+//    armRoot  = shoulder + vec(spineAngle+180) * (armRootT * spine)
+//                 ← slides back down spine; armRootT=0 → shoulder, 1 → hip
+//    elbow    = armRoot  + vec(upperArmAngle) * upperArm
+//    hand     = elbow    + vec(forearmAngle)  * foreArm
+//    siddur   = hand ± vec(siddurAngle) * siddur/2  ← stub centered at hand
+//
+//  TALLIT:
+//    perpOffset = vec(spineAngle+90) * 8            ← +90° = back/right side
+//    tallitP2 (top)    = shoulder + perpOffset
+//    tallitP1 (bottom) = (hip + vec(thighAngle+180)*0.75*thigh) + perpOffset
+//
+//  TZITZIT: white stripe 50–75% of spine length from shoulder toward hip.
+//
+//  KIPPAH: kipAngle = spine "up" direction for this pose (270° upright).
+//    Head ellipse rotates by (kipAngle − 270°) so ry always points toward sky.
+//
+//  ANIMATION: lerpJoints() lerps all angles (shortest-arc for circular values),
+//    then calls fkCompute() each frame. Limb lengths stay constant mid-animation.
+//    liveAngles holds the current interpolated pose params between keyframes.
+//
+//  ADDING A POSE: add an entry to POSES with the 11 scalar fields below,
+//    then reference its key in WORD_POSES.
+// ═══════════════════════════════════════════════════════════════════
+
+const POSES = {
+  // swingThighAngle/swingShinAngle for non-stepping poses = thighAngle+180 / shinAngle+180
+  // so the swing leg traces the same path as the stance leg (invisible overlap, swingKneeR=0).
+  upright: {
+    footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
+  },
+  knees: {
+    footX: 110, shinAngle: 255, thighAngle: 290, spineAngle: 265,
+    armRootT: 0.33, upperArmAngle: 155, forearmAngle: 235, siddurAngle: 53,
+    kneeR: 5, kipAngle: 265, tzitzit: 0,
+    swingThighAngle: 110, swingShinAngle: 75, swingKneeR: 0,
+  },
+  bow: {
+    footX: 130, shinAngle: 270, thighAngle: 270, spineAngle: 210,
+    armRootT: 0.50, upperArmAngle: 100, forearmAngle: 200, siddurAngle: 81,
+    kneeR: 5, kipAngle: 210, tzitzit: 0,
+    swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
+  },
+
+  // ── Three Steps Back ──────────────────────────────────────────────────
+  // V-shape geometry: shinAngle=thighAngle=286° → leg tilts up-right, ~46px spread.
+  // Each step footX advances by 46px (swing foot becomes next stance foot).
+  // stepBack3: feet together at x=202, upright.
+  stepBack1: {
+    footX: 110, shinAngle: 286, thighAngle: 286, spineAngle: 268,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    kneeR: 3, kipAngle: 268, tzitzit: 1,
+    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 3, isStep: true,
+  },
+  stepBack2: {
+    footX: 156, shinAngle: 286, thighAngle: 286, spineAngle: 268,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    kneeR: 3, kipAngle: 268, tzitzit: 1,
+    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 3, isStep: true,
+  },
+  stepBack3: {
+    footX: 202, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0, isStep: true,
+  },
+
+  // ── Three Steps Forward ───────────────────────────────────────────────
+  // Mirror of stepBack: shinAngle=thighAngle=254° (270°−16°, tilts left/forward).
+  // swingThighAngle/swingShinAngle=106° (mirror of 74°) → swing foot lands ~46px left.
+  // stepForward3: feet together at x=110, upright.
+  stepForward1: {
+    footX: 202, shinAngle: 254, thighAngle: 254, spineAngle: 272,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    kneeR: 3, kipAngle: 272, tzitzit: 1,
+    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 3, isStep: true,
+  },
+  stepForward2: {
+    footX: 156, shinAngle: 254, thighAngle: 254, spineAngle: 272,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    kneeR: 3, kipAngle: 272, tzitzit: 1,
+    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 3, isStep: true,
+  },
+  stepForward3: {
+    footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0, isStep: true,
+  },
+};
+
+// ── Forward kinematics: angles → joint world positions ──────────
+function fkCompute(p) {
+  const foot     = [p.footX, FOOT_Y];
+  const knee     = addScaled(foot,     vec(p.shinAngle),       LIMBS.shin);
+  const hip      = addScaled(knee,     vec(p.thighAngle),      LIMBS.thigh);
+  const spineV   = vec(p.spineAngle);
+  const shoulder = addScaled(hip,      spineV,                 LIMBS.spine);
+  const headC    = addScaled(shoulder, spineV,                 LIMBS.neck);
+
+  const backV   = vec(p.spineAngle + 180);
+  const armRoot = addScaled(shoulder, backV, p.armRootT * LIMBS.spine);
+  const elbow   = addScaled(armRoot,  vec(p.upperArmAngle),   LIMBS.upperArm);
+  const hand    = addScaled(elbow,    vec(p.forearmAngle),    LIMBS.foreArm);
+
+  const sdV    = vec(53);   // locked — book never rotates regardless of arm/spine pose
+  const siddurA = addScaled(hand, sdV, -LIMBS.siddur * 0.5);
+  const siddurB = addScaled(hand, sdV,  LIMBS.siddur * 0.5);
+
+  // Tallit: top aligned to visible spine endpoint (spine stops 2.5px short of shoulder,
+  // so tallitP2 is also 2.5px below shoulder along spine direction — visually flush).
+  // Bottom has 4px back offset for a gentle drape angle.
+  const tallitDownV = vec(p.spineAngle + 180);
+  const tallitBottom = addScaled(hip, tallitDownV, LIMBS.thigh * (2/3));
+  const tallitP2 = [shoulder[0] + 3, shoulder[1] + 5];          // 5px below shoulder joint (tiny gap)
+  const tallitP1 = [tallitBottom[0] + 7, tallitBottom[1]];      // x offset halved again (11→7)
+
+  // Tzitzit: always hangs straight down from hip — gravity-vertical regardless of pose
+  const tzA = [hip[0], hip[1]];
+  const tzB = [hip[0], hip[1] + LIMBS.thigh * (2/3)];
+
+  // Swing leg hangs from hip; overlaps stance leg when swingThighAngle = thighAngle+180
+  const swingKnee = addScaled(hip,       vec(p.swingThighAngle), LIMBS.thigh);
+  const swingFoot = addScaled(swingKnee, vec(p.swingShinAngle),  LIMBS.shin);
+
+  return { foot, knee, hip, shoulder, headC, armRoot, elbow, hand,
+           siddurA, siddurB, tallitP1, tallitP2, tzA, tzB,
+           swingKnee, swingFoot,
+           kneeR: p.kneeR, swingKneeR: p.swingKneeR,
+           kipAngle: p.kipAngle, tzitzit: p.tzitzit };
+}
+
+// ── DOM references ──────────────────────────────────────────────
+const elTallit     = document.getElementById('el-tallit');
+const elSwingThigh = document.getElementById('el-swing-thigh');
+const elSwingShin  = document.getElementById('el-swing-shin');
+const elSwingKnee  = document.getElementById('el-swing-knee');
+const elShin    = document.getElementById('el-shin');
+const elThigh   = document.getElementById('el-thigh');
+const elSpine   = document.getElementById('el-spine');
+const elArmU    = document.getElementById('el-arm-u');
+const elArmL    = document.getElementById('el-arm-l');
+const elSiddur  = document.getElementById('el-siddur');
+const elKnee     = document.getElementById('el-knee');
+const elHead     = document.getElementById('el-head');
+const elFedoraBrim  = document.getElementById('el-fedora-brim');
+const elFedoraCrown = document.getElementById('el-fedora-crown');
+const elTzitzit  = document.getElementById('el-tzitzit');
+const elFootStub      = document.getElementById('el-foot-stub');
+const elSwingFootStub = document.getElementById('el-swing-foot-stub');
+const elHip      = document.getElementById('el-hip');
+const elElbow    = document.getElementById('el-elbow');
+
+
+// ── Render FK joint positions ───────────────────────────────────
+function setLine(el, x1,y1,x2,y2) {
+  el.setAttribute('x1', x1.toFixed(2)); el.setAttribute('y1', y1.toFixed(2));
+  el.setAttribute('x2', x2.toFixed(2)); el.setAttribute('y2', y2.toFixed(2));
+}
+
+function render(j) {
+  setLine(elTallit, j.tallitP1[0], j.tallitP1[1], j.tallitP2[0], j.tallitP2[1]);
+  setLine(elSwingThigh, j.hip[0],       j.hip[1],       j.swingKnee[0], j.swingKnee[1]);
+  setLine(elSwingShin,  j.swingKnee[0], j.swingKnee[1], j.swingFoot[0], j.swingFoot[1]);
+  elSwingKnee.setAttribute('cx', j.swingKnee[0].toFixed(2));
+  elSwingKnee.setAttribute('cy', j.swingKnee[1].toFixed(2));
+  elSwingKnee.setAttribute('r',  j.swingKneeR.toFixed(2));
+  setLine(elShin,   j.foot[0],     j.foot[1],     j.knee[0],     j.knee[1]);
+  setLine(elThigh,  j.knee[0],     j.knee[1],     j.hip[0],      j.hip[1]);
+  // Spine: stop 2.5px short of shoulder to leave a subtle neck gap
+  const spineDx = j.shoulder[0] - j.hip[0];
+  const spineDy = j.shoulder[1] - j.hip[1];
+  const spineD  = Math.hypot(spineDx, spineDy) || 1;
+  setLine(elSpine, j.hip[0], j.hip[1],
+          j.shoulder[0] - spineDx/spineD * 2.5,
+          j.shoulder[1] - spineDy/spineD * 2.5);
+  setLine(elArmU,   j.armRoot[0],  j.armRoot[1],  j.elbow[0],    j.elbow[1]);
+  setLine(elArmL,   j.elbow[0],    j.elbow[1],    j.hand[0],     j.hand[1]);
+  setLine(elSiddur, j.siddurA[0],  j.siddurA[1],  j.siddurB[0],  j.siddurB[1]);
+
+  setLine(elFootStub,      j.foot[0],      j.foot[1],      j.foot[0]      - 10, j.foot[1]);
+  setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] - 10, j.swingFoot[1]);
+
+  elHip.setAttribute('cx',   j.hip[0].toFixed(2));
+  elHip.setAttribute('cy',   j.hip[1].toFixed(2));
+  elElbow.setAttribute('cx', j.elbow[0].toFixed(2));
+  elElbow.setAttribute('cy', j.elbow[1].toFixed(2));
+
+  elKnee.setAttribute('cx', j.knee[0].toFixed(2));
+  elKnee.setAttribute('cy', j.knee[1].toFixed(2));
+  elKnee.setAttribute('r',  j.kneeR.toFixed(2));
+
+  const headRotDeg = j.kipAngle - 270 - 6;  // −6° forward tilt toward siddur
+  const headCx = j.headC[0] - 4;            // shift head 4px left (toward facing direction)
+  elHead.setAttribute('cx', headCx.toFixed(2));
+  elHead.setAttribute('cy', j.headC[1].toFixed(2));
+  elHead.setAttribute('transform',
+    `rotate(${headRotDeg.toFixed(1)},${headCx.toFixed(2)},${j.headC[1].toFixed(2)})`);
+  // Fedora brim: horizontal ellipse at top of head oval
+  const brimCy = j.headC[1] - 13;
+  const hatRot = `rotate(${headRotDeg.toFixed(1)},${headCx.toFixed(2)},${j.headC[1].toFixed(2)})`;
+  elFedoraBrim.setAttribute('cx', headCx.toFixed(2));
+  elFedoraBrim.setAttribute('cy', brimCy.toFixed(2));
+  elFedoraBrim.setAttribute('transform', hatRot);
+  // Fedora crown: rounded rect centered on brim, rising above it
+  elFedoraCrown.setAttribute('x',  (headCx - 9).toFixed(2));
+  elFedoraCrown.setAttribute('y',  (brimCy - 10).toFixed(2));
+  elFedoraCrown.setAttribute('transform', hatRot);
+
+  elTzitzit.setAttribute('x1', j.tzA[0].toFixed(2)); elTzitzit.setAttribute('y1', j.tzA[1].toFixed(2));
+  elTzitzit.setAttribute('x2', j.tzB[0].toFixed(2)); elTzitzit.setAttribute('y2', j.tzB[1].toFixed(2));
+  elTzitzit.setAttribute('opacity', j.tzitzit.toFixed(3));
+}
+
+// ── Motion cue ─────────────────────────────────────────────────
+function setCue(text) {
+  document.getElementById('motion-cue').textContent = text;
+}
+
+// ── Animation: lerp angles → FK each frame ─────────────────────
+const DURATION = 580;
+let rafId = null, animStart = null;
+let liveAngles = JSON.parse(JSON.stringify(POSES.upright));
+let rockRafId = null, rockStartTime = null;
+const ROCK_AMP = 3, ROCK_PERIOD = 3000;
+
+function stopRocking() {
+  if (rockRafId) { cancelAnimationFrame(rockRafId); rockRafId = null; rockStartTime = null; }
+}
+function startRocking() {
+  if (rockRafId) return;
+  function rockStep(ts) {
+    if (!rockStartTime) rockStartTime = ts;
+    const phase = (ts - rockStartTime) * 2 * Math.PI / ROCK_PERIOD;
+    // Forward-only: oscillates from 0 (upright) to -ROCK_AMP (forward lean), never past vertical
+    const delta = -ROCK_AMP * (1 - Math.cos(phase)) / 2;
+    const rocked = Object.assign({}, liveAngles);
+    rocked.spineAngle = liveAngles.spineAngle + delta;
+    rocked.kipAngle   = liveAngles.kipAngle   + delta;
+    render(fkCompute(rocked));
+    rockRafId = requestAnimationFrame(rockStep);
+  }
+  rockRafId = requestAnimationFrame(rockStep);
+}
+
+function lerp(a,b,t) { return a + (b-a)*t; }
+function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+function lerpAngle(a, b, t) {
+  let diff = b - a;
+  while (diff >  180) diff -= 360;
+  while (diff < -180) diff += 360;
+  return a + diff * t;
+}
+
+function lerpJoints(A, B, t) {
+  return {
+    footX:         lerp(A.footX,         B.footX,         t),
+    shinAngle:     lerpAngle(A.shinAngle,     B.shinAngle,     t),
+    thighAngle:    lerpAngle(A.thighAngle,    B.thighAngle,    t),
+    spineAngle:    lerpAngle(A.spineAngle,    B.spineAngle,    t),
+    armRootT:      lerp(A.armRootT,      B.armRootT,      t),
+    upperArmAngle: lerpAngle(A.upperArmAngle, B.upperArmAngle, t),
+    forearmAngle:  lerpAngle(A.forearmAngle,  B.forearmAngle,  t),
+    siddurAngle:   lerpAngle(A.siddurAngle,   B.siddurAngle,   t),
+    kneeR:    lerp(A.kneeR,    B.kneeR,    t),
+    kipAngle: lerpAngle(A.kipAngle, B.kipAngle, t),
+    tzitzit:  lerp(A.tzitzit,  B.tzitzit,  t),
+    swingThighAngle: lerpAngle(A.swingThighAngle, B.swingThighAngle, t),
+    swingShinAngle:  lerpAngle(A.swingShinAngle,  B.swingShinAngle,  t),
+    swingKneeR:      lerp(A.swingKneeR, B.swingKneeR, t),
+  };
+}
+
+// ── Step transition: IK-based, locks stance foot ───────────────
+function svgAngleDeg(dx, dy) {
+  return ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360;
+}
+
+// stanceX is locked throughout. movingFoot lerps from movingStart to movingEnd.
+// Hip X = midpoint of both feet. Hip Y derived from leg length geometry.
+// Leg angles computed via IK each frame so stance foot never slides.
+function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
+  const movingX    = lerp(movingStart, movingEnd, t);
+  const halfSpread = (movingX - stanceX) / 2;
+  const legLen     = LIMBS.shin + LIMBS.thigh;
+  const hipX       = stanceX + halfSpread;
+  const hipY       = 215 - Math.sqrt(Math.max(0, legLen * legLen - halfSpread * halfSpread));
+
+  const stanceLegAngle = svgAngleDeg(hipX - stanceX, hipY - 215);
+  const swingLegAngle  = svgAngleDeg(movingX - hipX, 215 - hipY);
+
+  return {
+    footX:           stanceX,
+    shinAngle:       stanceLegAngle,
+    thighAngle:      stanceLegAngle,
+    spineAngle:      lerpAngle(A.spineAngle,     B.spineAngle,     t),
+    armRootT:        lerp    (A.armRootT,         B.armRootT,        t),
+    upperArmAngle:   lerpAngle(A.upperArmAngle,  B.upperArmAngle,  t),
+    forearmAngle:    lerpAngle(A.forearmAngle,    B.forearmAngle,    t),
+    siddurAngle:     lerpAngle(A.siddurAngle,     B.siddurAngle,     t),
+    kneeR:           lerp    (A.kneeR,             B.kneeR,           t),
+    kipAngle:        lerpAngle(A.kipAngle,         B.kipAngle,        t),
+    tzitzit:         lerp    (A.tzitzit,           B.tzitzit,         t),
+    swingThighAngle: swingLegAngle,
+    swingShinAngle:  swingLegAngle,
+    swingKneeR:      lerp    (A.swingKneeR,       B.swingKneeR,      t),
+    isStep:          true,
+  };
+}
+
+function animateTo(poseName, onDone) {
+  stopRocking();
+  if (rafId) cancelAnimationFrame(rafId);
+  const fromAngles = JSON.parse(JSON.stringify(liveAngles));
+  const toAngles   = POSES[poseName];
+  animStart = null;
+
+  const isStepTrans = !!toAngles.isStep;
+  let stanceX, movingStart, movingEnd;
+  if (isStepTrans) {
+    stanceX     = toAngles.footX;
+    movingStart = fromAngles.footX;
+    movingEnd   = fkCompute(toAngles).swingFoot[0];
+  }
+
+  function step(ts) {
+    if (!animStart) animStart = ts;
+    const raw = (ts - animStart) / DURATION;
+    const t   = ease(Math.min(raw, 1));
+    liveAngles = isStepTrans
+      ? lerpStep(fromAngles, toAngles, t, stanceX, movingStart, movingEnd)
+      : lerpJoints(fromAngles, toAngles, t);
+    render(fkCompute(liveAngles));
+    if (raw < 1) {
+      rafId = requestAnimationFrame(step);
+    } else {
+      rafId = null;
+      liveAngles = JSON.parse(JSON.stringify(toAngles));
+      render(fkCompute(liveAngles));
+      if (poseName === 'upright') startRocking();
+      if (onDone) onDone();
+    }
+  }
+  rafId = requestAnimationFrame(step);
+}
+
+// ── Choreography helpers ──────────────────────────────────────
+
+// Intro: 3 steps back, pause, 3 steps forward, settle to upright.
+function runAvotIntro(onDone) {
+  setCue('Take 3 steps back');
+  animateTo('stepBack1', () => setTimeout(() =>
+    animateTo('stepBack2', () => setTimeout(() =>
+      animateTo('stepBack3', () => setTimeout(() => {
+        setCue('Take 3 steps forward');
+        animateTo('stepForward1', () => setTimeout(() =>
+          animateTo('stepForward2', () => setTimeout(() =>
+            animateTo('stepForward3', () => setTimeout(() =>
+              animateTo('upright', () => {
+                setCue('Standing in prayer');
+                curPose = 'upright'; if (onDone) onDone();
+              }),
+            250)), 250)), 250));
+      }, 450)), 250)), 250));
+}
+
+// Avot word indices with special poses:
+//   6, 43 = Baruch (knees → bow, hold)    7, 44 = Atah (straighten)
+//   47     = Avraham/last word (bow → auto-straighten)
+// Gevurot:
+//   45 = m'cha-yeh closing (bow)          46 = ha-mei-tim/last (straighten)
+function applyPoseForWord(sec, idx) {
+  // Always cancel any pending deferred-upright before deciding the new pose.
+  clearTimeout(deferredUpright);
+  deferredUpright = null;
+
+  if (sec === 0) {
+    if (idx === 6 || idx === 43) {
+      setCue('Bend knees on בָּרוּךְ');
+      curPose = 'knees';
+      animateTo('knees');
+    } else if (idx === 7 || idx === 44) {
+      setCue('Bow forward on אַתָּה');
+      curPose = 'bow';
+      animateTo('bow');
+    } else if (idx === 8 || idx === 45) {
+      setCue('Rise on יְיָ');
+      curPose = 'upright';
+      animateTo('upright');
+    } else {
+      setCue('Standing in prayer');
+      if (curPose !== 'upright') {
+        curPose = 'upright';
+        deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
+      }
+    }
+  } else {
+    setCue('Standing in prayer');
+    if (curPose !== 'upright') {
+      curPose = 'upright';
+      deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
+    }
+  }
+}
+
+// ── Sections / word data ──────────────────────────────────────
+const SECTIONS = [
+  {
+    name: 'Avot',
+    label: 'Avot · אָבוֹת',
+    words: [
+      { heb: 'אֲדֹנָי',       tr: 'A-do-nai' },
+      { heb: 'שְׂפָתַי',      tr: "s'fa-tai" },
+      { heb: 'תִּפְתָּח',     tr: 'tif-tach' },
+      { heb: 'וּפִי',         tr: 'u-fi' },
+      { heb: 'יַגִּיד',       tr: 'ya-gid' },
+      { heb: 'תְּהִלָּתֶךָ',  tr: "t'hi-la-te-cha" },
+      { heb: 'בָּרוּךְ',      tr: 'Ba-ruch' },
+      { heb: 'אַתָּה',        tr: 'a-tah' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'אֱלֹהֵינוּ',    tr: 'E-lo-hei-nu' },
+      { heb: 'וֵאלֹהֵי',      tr: 'vei-lo-hei' },
+      { heb: 'אֲבוֹתֵינוּ',   tr: 'a-vo-tei-nu' },
+      { heb: 'אֱלֹהֵי',       tr: 'E-lo-hei' },
+      { heb: 'אַבְרָהָם',     tr: 'Av-ra-ham' },
+      { heb: 'אֱלֹהֵי',       tr: 'E-lo-hei' },
+      { heb: 'יִצְחָק',       tr: 'Yitz-chak' },
+      { heb: 'וֵאלֹהֵי',      tr: 'vei-lo-hei' },
+      { heb: 'יַעֲקֹב',       tr: 'Ya-a-kov' },
+      { heb: 'הָאֵל',         tr: 'ha-El' },
+      { heb: 'הַגָּדוֹל',     tr: 'ha-ga-dol' },
+      { heb: 'הַגִּבּוֹר',    tr: 'ha-gi-bor' },
+      { heb: 'וְהַנּוֹרָא',   tr: "v'ha-no-ra" },
+      { heb: 'אֵל',           tr: 'El' },
+      { heb: 'עֶלְיוֹן',      tr: 'el-yon' },
+      { heb: 'גּוֹמֵל',       tr: 'go-mel' },
+      { heb: 'חֲסָדִים',      tr: 'cha-sa-dim' },
+      { heb: 'טוֹבִים',       tr: 'to-vim' },
+      { heb: 'קוֹנֵה',        tr: 'ko-neh' },
+      { heb: 'הַכֹּל',        tr: 'ha-kol' },
+      { heb: 'וְזוֹכֵר',      tr: "v'zo-cher" },
+      { heb: 'חַסְדֵּי',      tr: 'chas-dei' },
+      { heb: 'אָבוֹת',        tr: 'a-vot' },
+      { heb: 'וּמֵבִיא',      tr: 'u-mei-vi' },
+      { heb: 'גוֹאֵל',        tr: 'go-el' },
+      { heb: 'לִבְנֵי',       tr: 'liv-nei' },
+      { heb: 'בְנֵיהֶם',      tr: "v'nei-hem" },
+      { heb: 'לְמַעַן',       tr: "l'ma-an" },
+      { heb: 'שְׁמוֹ',        tr: "sh'mo" },
+      { heb: 'בְּאַהֲבָה',    tr: "b'a-ha-vah" },
+      { heb: 'מֶלֶךְ',        tr: 'Me-lech' },
+      { heb: 'עוֹזֵר',        tr: 'o-zer' },
+      { heb: 'וּמוֹשִׁיעַ',   tr: 'u-mo-shi-a' },
+      { heb: 'וּמָגֵן',       tr: 'u-ma-gen' },
+      { heb: 'בָּרוּךְ',      tr: 'Ba-ruch' },
+      { heb: 'אַתָּה',        tr: 'a-tah' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'מָגֵן',         tr: 'ma-gen' },
+      { heb: 'אַבְרָהָם',     tr: 'Av-ra-ham' },
+    ]
+  },
+  {
+    name: 'Gevurot',
+    label: 'Gevurot · גְּבוּרוֹת',
+    words: [
+      { heb: 'אַתָּה',        tr: 'A-tah' },
+      { heb: 'גִּבּוֹר',      tr: 'gi-bor' },
+      { heb: 'לְעוֹלָם',      tr: "l'o-lam" },
+      { heb: 'אֲדֹנָי',       tr: 'A-do-nai' },
+      { heb: 'מְחַיֵּה',      tr: "m'cha-yeh" },
+      { heb: 'מֵתִים',        tr: 'mei-tim' },
+      { heb: 'אַתָּה',        tr: 'a-tah' },
+      { heb: 'רַב',           tr: 'rav' },
+      { heb: 'לְהוֹשִׁיעַ',   tr: "l'ho-shi-a" },
+      { heb: 'מְכַלְכֵּל',    tr: "M'chal-kel" },
+      { heb: 'חַיִּים',       tr: 'cha-yim' },
+      { heb: 'בְּחֶסֶד',      tr: "b'che-sed" },
+      { heb: 'מְחַיֵּה',      tr: "m'cha-yeh" },
+      { heb: 'מֵתִים',        tr: 'mei-tim' },
+      { heb: 'בְּרַחֲמִים',   tr: "b'ra-cha-mim" },
+      { heb: 'רַבִּים',       tr: 'ra-bim' },
+      { heb: 'סוֹמֵךְ',       tr: 'so-mech' },
+      { heb: 'נוֹפְלִים',     tr: 'nof-lim' },
+      { heb: 'וְרוֹפֵא',      tr: "v'ro-feh" },
+      { heb: 'חוֹלִים',       tr: 'cho-lim' },
+      { heb: 'וּמַתִּיר',     tr: 'u-ma-tir' },
+      { heb: 'אֲסוּרִים',     tr: 'a-su-rim' },
+      { heb: 'וּמְקַיֵּם',    tr: "u-m'ka-yem" },
+      { heb: 'אֱמוּנָתוֹ',    tr: 'e-mu-na-to' },
+      { heb: 'לִישֵׁנֵי',     tr: 'li-shei-nei' },
+      { heb: 'עָפָר',         tr: 'a-far' },
+      { heb: 'מִי',           tr: 'mi' },
+      { heb: 'כָמוֹךָ',       tr: 'cha-mo-cha' },
+      { heb: 'בַּעַל',        tr: 'ba-al' },
+      { heb: 'גְּבוּרוֹת',    tr: "g'vu-rot" },
+      { heb: 'וּמִי',         tr: 'u-mi' },
+      { heb: 'דּוֹמֶה',       tr: 'do-meh' },
+      { heb: 'לָּךְ',         tr: 'lach' },
+      { heb: 'מֶלֶךְ',        tr: 'me-lech' },
+      { heb: 'מֵמִית',        tr: 'mei-mit' },
+      { heb: 'וּמְחַיֶּה',    tr: "u-m'cha-yeh" },
+      { heb: 'וּמַצְמִיחַ',   tr: 'u-matz-mi-ach' },
+      { heb: 'יְשׁוּעָה',     tr: "y'shu-ah" },
+      { heb: 'וְנֶאֱמָן',     tr: "V'ne-e-man" },
+      { heb: 'אַתָּה',        tr: 'a-tah' },
+      { heb: 'לְהַחֲיוֹת',    tr: "l'ha-cha-yot" },
+      { heb: 'מֵתִים',        tr: 'mei-tim' },
+      { heb: 'בָּרוּךְ',      tr: 'Ba-ruch' },
+      { heb: 'אַתָּה',        tr: 'a-tah' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'מְחַיֵּה',      tr: "m'cha-yeh" },
+      { heb: 'הַמֵּתִים',     tr: 'ha-mei-tim' },
+    ]
+  }
+];
+
+const WORDS_PER_ROW  = 5;
+const ROWS_PER_PAGE  = 2;
+const WORDS_PER_PAGE = WORDS_PER_ROW * ROWS_PER_PAGE;
+
+let curSection = 0, curWord = 0;
+let playing = false, playInterval = null, curPose = 'upright', deferredUpright = null;
+
+function currentPage() { return Math.floor(curWord / WORDS_PER_PAGE); }
+
+function renderPage() {
+  const sec   = SECTIONS[curSection];
+  document.getElementById('section-label').textContent = sec.label;
+  const page  = currentPage();
+  const start = page * WORDS_PER_PAGE;
+  const area  = document.getElementById('words-area');
+  area.innerHTML = '';
+  for (let r = 0; r < ROWS_PER_PAGE; r++) {
+    const rStart   = start + r * WORDS_PER_ROW;
+    const rowWords = sec.words.slice(rStart, rStart + WORDS_PER_ROW);
+    if (!rowWords.length) break;
+    const row = document.createElement('div');
+    row.className = 'word-row';
+    rowWords.forEach((w, i) => {
+      const idx = rStart + i;
+      const el  = document.createElement('div');
+      el.className = 'word' + (idx === curWord ? ' active' : '');
+      el.dataset.index = idx;
+      el.innerHTML = `<div class="heb">${w.heb}</div><div class="translit">${w.tr}</div>`;
+      el.addEventListener('click', () => { stopPlay(); setWord(idx); });
+      row.appendChild(el);
+    });
+    area.appendChild(row);
+  }
+}
+
+function setWord(i) {
+  const sec = SECTIONS[curSection];
+  i = Math.max(0, Math.min(sec.words.length - 1, i));
+  const prevPage = currentPage();
+  curWord = i;
+  if (currentPage() !== prevPage) {
+    renderPage();
+  } else {
+    document.querySelectorAll('#words-area .word').forEach(w => w.classList.remove('active'));
+    const target = document.querySelector(`#words-area .word[data-index="${i}"]`);
+    if (target) target.classList.add('active');
+  }
+  applyPoseForWord(curSection, i);
+}
+
+function goNextWord() {
+  const sec = SECTIONS[curSection];
+  if (curWord < sec.words.length - 1) { setWord(curWord + 1); }
+  else if (curSection < SECTIONS.length - 1) { goNextSection(); }
+  else { stopPlay(); }
+}
+
+function goPrevWord() {
+  if (curWord > 0) { setWord(curWord - 1); }
+  else if (curSection > 0) {
+    curSection--;
+    curWord = SECTIONS[curSection].words.length - 1;
+    renderPage();
+    applyPoseForWord(curSection, curWord);
+  }
+}
+
+function goNextSection() {
+  curSection = (curSection < SECTIONS.length - 1) ? curSection + 1 : 0;
+  curWord = 0;
+  curPose = 'upright';
+  renderPage();
+  if (curSection === 0) {
+    // Re-entering Avot: first settle to upright, then run the intro steps
+    animateTo('upright', () => setTimeout(() => runAvotIntro(null), 200));
+  } else {
+    animateTo('upright');
+  }
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  stopPlay();
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  goNextWord();
+});
+document.getElementById('btn-prev').addEventListener('click', () => {
+  stopPlay();
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  goPrevWord();
+});
+document.getElementById('btn-section').addEventListener('click', () => { stopPlay(); goNextSection(); });
+
+function startPlay() {
+  playing = true;
+  document.getElementById('btn-play').textContent = '⏸ pause';
+  const audio = document.getElementById('audio-player');
+
+  function beginAdvancing() {
+    if (!playing) return;
+    if (audio.src && audio.src !== window.location.href) {
+      audio.play();
+    } else {
+      playInterval = setInterval(() => goNextWord(), 1400);
+    }
+  }
+
+  if (curSection === 0 && curWord === 0) {
+    runAvotIntro(beginAdvancing);
+  } else {
+    beginAdvancing();
+  }
+}
+
+function stopPlay() {
+  playing = false;
+  document.getElementById('btn-play').textContent = '▶ play';
+  clearInterval(playInterval);
+  const audio = document.getElementById('audio-player');
+  if (!audio.paused) audio.pause();
+}
+
+document.getElementById('btn-play').addEventListener('click', () => {
+  if (playing) stopPlay(); else startPlay();
+});
+
+document.getElementById('audio-input').addEventListener('change', function() {
+  const file = this.files[0]; if (!file) return;
+  const audio = document.getElementById('audio-player');
+  audio.src = URL.createObjectURL(file);
+  document.getElementById('audio-note').textContent = '✓ ' + file.name + ' loaded';
+  audio.addEventListener('ended', () => stopPlay());
+});
+
+// ── Test: full step sequence ───────────────────────────────────
+document.getElementById('btn-test-steps').addEventListener('click', () => {
+  stopPlay();
+  const btn = document.getElementById('btn-test-steps');
+  btn.disabled = true;
+  btn.textContent = '…';
+  curPose = 'upright';
+  animateTo('upright', () => runAvotIntro(() => {
+    btn.disabled = false;
+    btn.textContent = '⚙ test steps';
+  }));
+});
+
+// ── Init ───────────────────────────────────────────────────────
+render(fkCompute(liveAngles));
+renderPage();
+</script>
+</body>
+</html>
