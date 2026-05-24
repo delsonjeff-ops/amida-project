@@ -689,16 +689,18 @@ function applyPoseForWord(sec, idx) {
       }
     }
   } else if (sec === 6) {
-    // Sim Shalom: closing בָּרוּךְ אַתָּה יְיָ at indices 46/47/48
-    if (idx === 46) {
+    // Sim Shalom: Birkat Kohanim cues at 46/47/48; bow at 49/50/51
+    if (idx === 46 || idx === 47 || idx === 48) {
+      setCue('Turn — direction TBD (Rabbi Ari to confirm)');
+    } else if (idx === 49) {
       setCue('Bend knees on בָּרוּךְ');
       curPose = 'knees';
       animateTo('knees');
-    } else if (idx === 47) {
+    } else if (idx === 50) {
       setCue('Bow forward on אַתָּה');
       curPose = 'bow';
       animateTo('bow');
-    } else if (idx === 48) {
+    } else if (idx === 51) {
       setCue('Rise on יְיָ');
       curPose = 'upright';
       animateTo('upright');
@@ -1300,6 +1302,9 @@ const SECTIONS = [
       { heb: 'וּבְכָל',         tr: "u-v'chol" },
       { heb: 'שָׁעָה',          tr: "sha-ah" },
       { heb: 'בִּשְׁלוֹמֶךָ',   tr: "bish-lo-me-cha" },
+      { heb: 'יְבָרֶכְךָ',      tr: "y'va-rech-cha" },
+      { heb: 'יָאֵר',           tr: "ya-eir" },
+      { heb: 'יִשָּׂא',          tr: "yi-sa" },
       { heb: 'בָּרוּךְ',        tr: "Ba-ruch" },
       { heb: 'אַתָּה',          tr: "a-tah" },
       { heb: 'יְיָ',            tr: "A-do-nai" },
