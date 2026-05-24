@@ -658,6 +658,36 @@ function applyPoseForWord(sec, idx) {
         deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
       }
     }
+  } else if (sec === 5) {
+    // Modim: bow at opening מוֹדִים (0), rise at יְיָ (5)
+    // Closing בָּרוּךְ אַתָּה יְיָ at indices 79/80/81
+    if (idx === 0) {
+      setCue('Bow on מוֹדִים');
+      curPose = 'bow';
+      animateTo('bow');
+    } else if (idx === 5) {
+      setCue('Rise on יְיָ');
+      curPose = 'upright';
+      animateTo('upright');
+    } else if (idx === 79) {
+      setCue('Bend knees on בָּרוּךְ');
+      curPose = 'knees';
+      animateTo('knees');
+    } else if (idx === 80) {
+      setCue('Bow forward on אַתָּה');
+      curPose = 'bow';
+      animateTo('bow');
+    } else if (idx === 81) {
+      setCue('Rise on יְיָ');
+      curPose = 'upright';
+      animateTo('upright');
+    } else {
+      setCue('Standing in prayer');
+      if (curPose !== 'upright') {
+        curPose = 'upright';
+        deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
+      }
+    }
   } else {
     setCue('Standing in prayer');
     if (curPose !== 'upright') {
@@ -1093,6 +1123,99 @@ const SECTIONS = [
       { heb: 'הַמַּחֲזִיר',     tr: "ha-ma-cha-zir" },
       { heb: 'שְׁכִינָתוֹ',     tr: "sh'chi-na-to" },
       { heb: 'לְצִיּוֹן',       tr: "l'Tzi-yon" },
+    ]
+  },
+  {
+    name: 'Modim',
+    label: "Modim · מוֹדִים",
+    words: [
+      { heb: 'מוֹדִים',         tr: "Mo-dim" },
+      { heb: 'אֲנַחְנוּ',       tr: "a-nach-nu" },
+      { heb: 'לָךְ',            tr: "lach" },
+      { heb: 'שָׁאַתָּה',       tr: "sha-a-tah" },
+      { heb: 'הוּא',            tr: "hu" },
+      { heb: 'יְיָ',            tr: "A-do-nai" },
+      { heb: 'אֱלֹהֵינוּ',      tr: "E-lo-hei-nu" },
+      { heb: 'וֵאלֹהֵי',        tr: "vei-lo-hei" },
+      { heb: 'אֲבוֹתֵינוּ',     tr: "a-vo-tei-nu" },
+      { heb: 'לְעוֹלָם',        tr: "l'o-lam" },
+      { heb: 'וָעֶד',           tr: "va-ed" },
+      { heb: 'צוּר',            tr: "tzur" },
+      { heb: 'חַיֵּינוּ',       tr: "cha-yei-nu" },
+      { heb: 'מָגֵן',           tr: "ma-gein" },
+      { heb: 'יִשְׁעֵנוּ',      tr: "yish-ei-nu" },
+      { heb: 'אַתָּה',          tr: "a-tah" },
+      { heb: 'הוּא',            tr: "hu" },
+      { heb: 'לְדוֹר',          tr: "l'dor" },
+      { heb: 'וָדוֹר',          tr: "va-dor" },
+      { heb: 'נוֹדֶה',          tr: "no-deh" },
+      { heb: 'לְּךָ',           tr: "l'cha" },
+      { heb: 'וּנְסַפֵּר',      tr: "u-n'sa-peir" },
+      { heb: 'תְּהִלָּתֶךָ',    tr: "t'hi-la-te-cha" },
+      { heb: 'עַל',             tr: "al" },
+      { heb: 'חַיֵּינוּ',       tr: "cha-yei-nu" },
+      { heb: 'הַמְּסוּרִים',    tr: "ha-m'su-rim" },
+      { heb: 'בְּיָדֶךָ',       tr: "b'ya-de-cha" },
+      { heb: 'וְעַל',           tr: "v'al" },
+      { heb: 'נִשְׁמוֹתֵינוּ',  tr: "nish-mo-tei-nu" },
+      { heb: 'הַפְּקוּדוֹת',    tr: "ha-p'ku-dot" },
+      { heb: 'לָךְ',            tr: "lach" },
+      { heb: 'וְעַל',           tr: "v'al" },
+      { heb: 'נִסֶּיךָ',        tr: "ni-se-cha" },
+      { heb: 'שֶׁבְּכָל',       tr: "she-b'chol" },
+      { heb: 'יוֹם',            tr: "yom" },
+      { heb: 'עִמָּנוּ',        tr: "i-ma-nu" },
+      { heb: 'וְעַל',           tr: "v'al" },
+      { heb: 'נִפְלְאוֹתֶיךָ',  tr: "nif-l'o-te-cha" },
+      { heb: 'וְטוֹבוֹתֶיךָ',   tr: "v'to-vo-te-cha" },
+      { heb: 'שֶׁבְּכָל',       tr: "she-b'chol" },
+      { heb: 'עֵת',             tr: "eit" },
+      { heb: 'עֶרֶב',           tr: "e-rev" },
+      { heb: 'וָבֹקֶר',         tr: "va-vo-ker" },
+      { heb: 'וְצָהֳרָיִם',     tr: "v'tzo-ho-ra-yim" },
+      { heb: 'הַטּוֹב',         tr: "ha-tov" },
+      { heb: 'כִּי',            tr: "ki" },
+      { heb: 'לֹא',             tr: "lo" },
+      { heb: 'כָלוּ',           tr: "cha-lu" },
+      { heb: 'רַחֲמֶיךָ',       tr: "ra-cha-me-cha" },
+      { heb: 'וְהַמְרַחֵם',     tr: "v'ha-m'ra-cheim" },
+      { heb: 'כִּי',            tr: "ki" },
+      { heb: 'לֹא',             tr: "lo" },
+      { heb: 'תַמּוּ',          tr: "ta-mu" },
+      { heb: 'חֲסָדֶיךָ',       tr: "cha-sa-de-cha" },
+      { heb: 'כִּי',            tr: "ki" },
+      { heb: 'מֵעוֹלָם',        tr: "mei-o-lam" },
+      { heb: 'קִוִּינוּ',       tr: "ki-vi-nu" },
+      { heb: 'לָךְ',            tr: "lach" },
+      { heb: 'וְעַל',           tr: "v'al" },
+      { heb: 'כֻּלָּם',         tr: "ku-lam" },
+      { heb: 'יִתְבָּרַךְ',     tr: "yit-ba-rach" },
+      { heb: 'וְיִתְרוֹמַם',    tr: "v'yit-ro-mam" },
+      { heb: 'שִׁמְךָ',         tr: "shim-cha" },
+      { heb: 'מַלְכֵּנוּ',      tr: "mal-kei-nu" },
+      { heb: 'תָּמִיד',         tr: "ta-mid" },
+      { heb: 'לְעוֹלָם',        tr: "l'o-lam" },
+      { heb: 'וָעֶד',           tr: "va-ed" },
+      { heb: 'וְכֹל',           tr: "v'chol" },
+      { heb: 'הַחַיִּים',       tr: "ha-cha-yim" },
+      { heb: 'יוֹדוּךָ',        tr: "yo-du-cha" },
+      { heb: 'סֶּלָה',          tr: "se-lah" },
+      { heb: 'וִיהַלְלוּ',      tr: "vi-ha-l'lu" },
+      { heb: 'אֶת',             tr: "et" },
+      { heb: 'שִׁמְךָ',         tr: "shim-cha" },
+      { heb: 'בֶּאֱמֶת',        tr: "be-e-met" },
+      { heb: 'הָאֵל',           tr: "ha-El" },
+      { heb: 'יְשׁוּעָתֵנוּ',   tr: "y'shu-a-tei-nu" },
+      { heb: 'וְעֶזְרָתֵנוּ',   tr: "v'ez-ra-tei-nu" },
+      { heb: 'סֶּלָה',          tr: "se-lah" },
+      { heb: 'בָּרוּךְ',        tr: "Ba-ruch" },
+      { heb: 'אַתָּה',          tr: "a-tah" },
+      { heb: 'יְיָ',            tr: "A-do-nai" },
+      { heb: 'הַטּוֹב',         tr: "ha-tov" },
+      { heb: 'שִׁמְךָ',         tr: "shim-cha" },
+      { heb: 'וּלְךָ',          tr: "u-l'cha" },
+      { heb: 'נָאֶה',           tr: "na-eh" },
+      { heb: 'לְהוֹדוֹת',       tr: "l'ho-dot" },
     ]
   }
 ];
