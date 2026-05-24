@@ -217,14 +217,14 @@ const POSES = {
   stepBack1: {
     footX: 110, shinAngle: 286, thighAngle: 286, spineAngle: 268,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 3, kipAngle: 268, tzitzit: 1,
-    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 3, isStep: true,
+    kneeR: 0, kipAngle: 268, tzitzit: 1,
+    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 0, isStep: true,
   },
   stepBack2: {
     footX: 156, shinAngle: 286, thighAngle: 286, spineAngle: 268,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 3, kipAngle: 268, tzitzit: 1,
-    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 3, isStep: true,
+    kneeR: 0, kipAngle: 268, tzitzit: 1,
+    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 0, isStep: true,
   },
   stepBack3: {
     footX: 202, shinAngle: 270, thighAngle: 270, spineAngle: 270,
@@ -240,14 +240,14 @@ const POSES = {
   stepForward1: {
     footX: 202, shinAngle: 254, thighAngle: 254, spineAngle: 272,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 3, kipAngle: 272, tzitzit: 1,
-    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 3, isStep: true,
+    kneeR: 0, kipAngle: 272, tzitzit: 1,
+    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 0, isStep: true,
   },
   stepForward2: {
     footX: 156, shinAngle: 254, thighAngle: 254, spineAngle: 272,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 3, kipAngle: 272, tzitzit: 1,
-    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 3, isStep: true,
+    kneeR: 0, kipAngle: 272, tzitzit: 1,
+    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 0, isStep: true,
   },
   stepForward3: {
     footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
@@ -462,7 +462,7 @@ function solveKneeIK(hipX, hipY, footX, footY, L1, L2) {
 // Hip X = midpoint of both feet. Hip Y derived from stance leg geometry.
 // Swing knee solved via 2-bone IK so it bends naturally throughout the arc.
 function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
-  const LIFT       = 27;
+  const LIFT       = 22;
   const movingX    = lerp(movingStart, movingEnd, t);
   const movingY    = FOOT_Y - LIFT * Math.sin(t * Math.PI);  // arc over ground
   const halfSpread = (movingX - stanceX) / 2;
@@ -484,12 +484,12 @@ function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
     upperArmAngle:   lerpAngle(A.upperArmAngle, B.upperArmAngle, t),
     forearmAngle:    lerpAngle(A.forearmAngle,   B.forearmAngle,  t),
     siddurAngle:     lerpAngle(A.siddurAngle,    B.siddurAngle,   t),
-    kneeR:           lerp    (A.kneeR,            B.kneeR,         t),
+    kneeR:           0,
     kipAngle:        270,  // head stays upright throughout step
     tzitzit:         lerp    (A.tzitzit,          B.tzitzit,       t),
     swingThighAngle,
     swingShinAngle,
-    swingKneeR: lerp(A.swingKneeR, B.swingKneeR, t) + 4 * Math.sin(t * Math.PI),
+    swingKneeR: 0,
     isStep:     true,
   };
 }
