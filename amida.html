@@ -215,19 +215,19 @@ const POSES = {
   // Each step footX advances by 46px (swing foot becomes next stance foot).
   // stepBack3: feet together at x=202, upright.
   stepBack1: {
-    footX: 110, shinAngle: 286, thighAngle: 286, spineAngle: 268,
+    footX: 110, shinAngle: 282, thighAngle: 282, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 0, kipAngle: 268, tzitzit: 1,
-    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 0, isStep: true,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 78, swingShinAngle: 78, swingKneeR: 0, isStep: true,
   },
   stepBack2: {
-    footX: 156, shinAngle: 286, thighAngle: 286, spineAngle: 268,
+    footX: 145, shinAngle: 282, thighAngle: 282, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 0, kipAngle: 268, tzitzit: 1,
-    swingThighAngle: 74, swingShinAngle: 74, swingKneeR: 0, isStep: true,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 78, swingShinAngle: 78, swingKneeR: 0, isStep: true,
   },
   stepBack3: {
-    footX: 202, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    footX: 180, shinAngle: 270, thighAngle: 270, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0, isStep: true,
@@ -238,16 +238,16 @@ const POSES = {
   // swingThighAngle/swingShinAngle=106° (mirror of 74°) → swing foot lands ~46px left.
   // stepForward3: feet together at x=110, upright.
   stepForward1: {
-    footX: 202, shinAngle: 254, thighAngle: 254, spineAngle: 272,
+    footX: 180, shinAngle: 258, thighAngle: 258, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 0, kipAngle: 272, tzitzit: 1,
-    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 0, isStep: true,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 102, swingShinAngle: 102, swingKneeR: 0, isStep: true,
   },
   stepForward2: {
-    footX: 156, shinAngle: 254, thighAngle: 254, spineAngle: 272,
+    footX: 145, shinAngle: 258, thighAngle: 258, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
-    kneeR: 0, kipAngle: 272, tzitzit: 1,
-    swingThighAngle: 106, swingShinAngle: 106, swingKneeR: 0, isStep: true,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 102, swingShinAngle: 102, swingKneeR: 0, isStep: true,
   },
   stepForward3: {
     footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
@@ -295,8 +295,7 @@ function fkCompute(p) {
            siddurA, siddurB, tallitP1, tallitP2, tzA, tzB,
            swingKnee, swingFoot,
            kneeR: p.kneeR, swingKneeR: p.swingKneeR,
-           kipAngle: p.kipAngle, tzitzit: p.tzitzit,
-           swingFootDirX: p.swingFootDirX !== undefined ? p.swingFootDirX : -1 };
+           kipAngle: p.kipAngle, tzitzit: p.tzitzit };
 }
 
 // ── DOM references ──────────────────────────────────────────────
@@ -348,7 +347,7 @@ function render(j) {
   setLine(elSiddur, j.siddurA[0],  j.siddurA[1],  j.siddurB[0],  j.siddurB[1]);
 
   setLine(elFootStub,      j.foot[0],      j.foot[1],      j.foot[0]      - 10, j.foot[1]);
-  setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] + j.swingFootDirX * 10, j.swingFoot[1]);
+  setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] - 10, j.swingFoot[1]);
 
   elHip.setAttribute('cx',   j.hip[0].toFixed(2));
   elHip.setAttribute('cy',   j.hip[1].toFixed(2));
@@ -490,9 +489,8 @@ function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
     tzitzit:         lerp    (A.tzitzit,          B.tzitzit,       t),
     swingThighAngle,
     swingShinAngle,
-    swingKneeR:      0,
-    swingFootDirX:   movingEnd > movingStart ? 1 : -1,
-    isStep:          true,
+    swingKneeR: 0,
+    isStep:     true,
   };
 }
 
