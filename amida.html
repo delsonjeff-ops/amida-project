@@ -210,9 +210,9 @@ const POSES = {
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
   },
   toes: {
-    footX: 110, shinAngle: 255, thighAngle: 258, spineAngle: 268,
+    footX: 110, footY: 207, shinAngle: 270, thighAngle: 270, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
-    kneeR: 3, kipAngle: 268, tzitzit: 1,
+    kneeR: 0, kipAngle: 270, tzitzit: 1, footStubAngle: 127,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
   },
 
@@ -265,7 +265,7 @@ const POSES = {
 
 // ── Forward kinematics: angles → joint world positions ──────────
 function fkCompute(p) {
-  const foot     = [p.footX, FOOT_Y];
+  const foot     = [p.footX, p.footY !== undefined ? p.footY : FOOT_Y];
   const knee     = addScaled(foot,     vec(p.shinAngle),       LIMBS.shin);
   const hip      = addScaled(knee,     vec(p.thighAngle),      LIMBS.thigh);
   const spineV   = vec(p.spineAngle);
@@ -301,7 +301,8 @@ function fkCompute(p) {
            siddurA, siddurB, tallitP1, tallitP2, tzA, tzB,
            swingKnee, swingFoot,
            kneeR: p.kneeR, swingKneeR: p.swingKneeR,
-           kipAngle: p.kipAngle, tzitzit: p.tzitzit };
+           kipAngle: p.kipAngle, tzitzit: p.tzitzit,
+           footStubAngle: p.footStubAngle };
 }
 
 // ── DOM references ──────────────────────────────────────────────
@@ -352,7 +353,8 @@ function render(j) {
   setLine(elArmL,   j.elbow[0],    j.elbow[1],    j.hand[0],     j.hand[1]);
   setLine(elSiddur, j.siddurA[0],  j.siddurA[1],  j.siddurB[0],  j.siddurB[1]);
 
-  setLine(elFootStub,      j.foot[0],      j.foot[1],      j.foot[0]      - 10, j.foot[1]);
+  const fsv = vec(j.footStubAngle !== undefined ? j.footStubAngle : 180);
+  setLine(elFootStub, j.foot[0], j.foot[1], j.foot[0] + fsv[0]*10, j.foot[1] + fsv[1]*10);
   setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] - 10, j.swingFoot[1]);
 
   elHip.setAttribute('cx',   j.hip[0].toFixed(2));
@@ -429,6 +431,8 @@ function lerpAngle(a, b, t) {
 function lerpJoints(A, B, t) {
   return {
     footX:         lerp(A.footX,         B.footX,         t),
+    footY:         lerp(A.footY !== undefined ? A.footY : FOOT_Y,
+                        B.footY !== undefined ? B.footY : FOOT_Y, t),
     shinAngle:     lerpAngle(A.shinAngle,     B.shinAngle,     t),
     thighAngle:    lerpAngle(A.thighAngle,    B.thighAngle,    t),
     spineAngle:    lerpAngle(A.spineAngle,    B.spineAngle,    t),
@@ -442,6 +446,9 @@ function lerpJoints(A, B, t) {
     swingThighAngle: lerpAngle(A.swingThighAngle, B.swingThighAngle, t),
     swingShinAngle:  lerpAngle(A.swingShinAngle,  B.swingShinAngle,  t),
     swingKneeR:      lerp(A.swingKneeR, B.swingKneeR, t),
+    footStubAngle: lerpAngle(
+      A.footStubAngle !== undefined ? A.footStubAngle : 180,
+      B.footStubAngle !== undefined ? B.footStubAngle : 180, t),
   };
 }
 
