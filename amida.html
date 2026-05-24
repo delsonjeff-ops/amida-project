@@ -295,7 +295,8 @@ function fkCompute(p) {
            siddurA, siddurB, tallitP1, tallitP2, tzA, tzB,
            swingKnee, swingFoot,
            kneeR: p.kneeR, swingKneeR: p.swingKneeR,
-           kipAngle: p.kipAngle, tzitzit: p.tzitzit };
+           kipAngle: p.kipAngle, tzitzit: p.tzitzit,
+           swingFootDirX: p.swingFootDirX !== undefined ? p.swingFootDirX : -1 };
 }
 
 // ── DOM references ──────────────────────────────────────────────
@@ -347,7 +348,7 @@ function render(j) {
   setLine(elSiddur, j.siddurA[0],  j.siddurA[1],  j.siddurB[0],  j.siddurB[1]);
 
   setLine(elFootStub,      j.foot[0],      j.foot[1],      j.foot[0]      - 10, j.foot[1]);
-  setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] - 10, j.swingFoot[1]);
+  setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] + j.swingFootDirX * 10, j.swingFoot[1]);
 
   elHip.setAttribute('cx',   j.hip[0].toFixed(2));
   elHip.setAttribute('cy',   j.hip[1].toFixed(2));
@@ -462,7 +463,7 @@ function solveKneeIK(hipX, hipY, footX, footY, L1, L2) {
 // Hip X = midpoint of both feet. Hip Y derived from stance leg geometry.
 // Swing knee solved via 2-bone IK so it bends naturally throughout the arc.
 function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
-  const LIFT       = 22;
+  const LIFT       = 18;
   const movingX    = lerp(movingStart, movingEnd, t);
   const movingY    = FOOT_Y - LIFT * Math.sin(t * Math.PI);  // arc over ground
   const halfSpread = (movingX - stanceX) / 2;
@@ -489,8 +490,9 @@ function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
     tzitzit:         lerp    (A.tzitzit,          B.tzitzit,       t),
     swingThighAngle,
     swingShinAngle,
-    swingKneeR: 0,
-    isStep:     true,
+    swingKneeR:      0,
+    swingFootDirX:   movingEnd > movingStart ? 1 : -1,
+    isStep:          true,
   };
 }
 
