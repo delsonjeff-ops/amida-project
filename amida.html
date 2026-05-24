@@ -92,7 +92,7 @@
       -->
 
       <!-- Draw order: tallit → swing leg (behind) → stance leg → spine → arm → siddur → knee dots → head → kippah -->
-      <line id="el-tallit"      stroke="#5b8db8" stroke-width="3" stroke-linecap="square" opacity="0.75"/>
+      <line id="el-tallit"      stroke="#5b8db8" stroke-width="3" stroke-linecap="square" opacity="0"/>
       <line id="el-swing-thigh" stroke="#1a1008" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
       <line id="el-swing-shin"      stroke="#1a1008" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
       <line id="el-swing-foot-stub" stroke="#1a1008" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
@@ -193,7 +193,7 @@ const POSES = {
   // so the swing leg traces the same path as the stance leg (invisible overlap, swingKneeR=0).
   upright: {
     footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
-    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
   },
@@ -216,19 +216,19 @@ const POSES = {
   // stepBack3: feet together at x=202, upright.
   stepBack1: {
     footX: 110, shinAngle: 280, thighAngle: 280, spineAngle: 270,
-    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 80, swingShinAngle: 80, swingKneeR: 0, isStep: true,
   },
   stepBack2: {
     footX: 139, shinAngle: 280, thighAngle: 280, spineAngle: 270,
-    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 80, swingShinAngle: 80, swingKneeR: 0, isStep: true,
   },
   stepBack3: {
     footX: 168, shinAngle: 270, thighAngle: 270, spineAngle: 270,
-    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0, isStep: true,
   },
@@ -239,19 +239,19 @@ const POSES = {
   // stepForward3: feet together at x=110, upright.
   stepForward1: {
     footX: 168, shinAngle: 260, thighAngle: 260, spineAngle: 270,
-    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 100, swingShinAngle: 100, swingKneeR: 0, isStep: true,
   },
   stepForward2: {
     footX: 139, shinAngle: 260, thighAngle: 260, spineAngle: 270,
-    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 100, swingShinAngle: 100, swingKneeR: 0, isStep: true,
   },
   stepForward3: {
     footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
-    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 53,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0, isStep: true,
   },
@@ -271,7 +271,7 @@ function fkCompute(p) {
   const elbow   = addScaled(armRoot,  vec(p.upperArmAngle),   LIMBS.upperArm);
   const hand    = addScaled(elbow,    vec(p.forearmAngle),    LIMBS.foreArm);
 
-  const sdV    = vec(53);   // locked — book never rotates regardless of arm/spine pose
+  const sdV    = vec(p.siddurAngle);
   const siddurA = addScaled(hand, sdV, -LIMBS.siddur * 0.5);
   const siddurB = addScaled(hand, sdV,  LIMBS.siddur * 0.5);
 
