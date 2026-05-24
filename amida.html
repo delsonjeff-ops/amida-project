@@ -492,9 +492,11 @@ function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
   const rawStanceLegAngle = svgAngleDeg(hipX - stanceX, hipY - FOOT_Y);
   const legBlend          = Math.min(1, t * 3);  // blend from fromAngles into IK over first ~33%
   const stanceLegAngle    = lerpAngle(A.shinAngle !== undefined ? A.shinAngle : 270, rawStanceLegAngle, legBlend);
-  const sk              = solveKneeIK(hipX, hipY, movingX, movingY, LIMBS.thigh, LIMBS.shin);
-  const swingThighAngle = (Math.atan2(sk.y - hipY,    sk.x - hipX)    * 180 / Math.PI + 360) % 360;
-  const swingShinAngle  = (Math.atan2(movingY - sk.y, movingX - sk.x) * 180 / Math.PI + 360) % 360;
+  const sk                    = solveKneeIK(hipX, hipY, movingX, movingY, LIMBS.thigh, LIMBS.shin);
+  const rawSwingThighAngle    = (Math.atan2(sk.y - hipY,    sk.x - hipX)    * 180 / Math.PI + 360) % 360;
+  const rawSwingShinAngle     = (Math.atan2(movingY - sk.y, movingX - sk.x) * 180 / Math.PI + 360) % 360;
+  const swingThighAngle = lerpAngle(A.swingThighAngle !== undefined ? A.swingThighAngle : 90, rawSwingThighAngle, legBlend);
+  const swingShinAngle  = lerpAngle(A.swingShinAngle  !== undefined ? A.swingShinAngle  : 90, rawSwingShinAngle,  legBlend);
 
   return {
     footX:           stanceX,
@@ -542,8 +544,11 @@ function animateTo(poseName, onDone) {
       rafId = requestAnimationFrame(step);
     } else {
       rafId = null;
-      liveAngles = JSON.parse(JSON.stringify(toAngles));
-      render(fkCompute(liveAngles));
+      if (!isStepTrans) {
+        liveAngles = JSON.parse(JSON.stringify(toAngles));
+        render(fkCompute(liveAngles));
+      }
+      // For step transitions liveAngles already holds the final IK frame — no snap to pose data.
       if (poseName === 'upright') startRocking();
       if (onDone) onDone();
     }
