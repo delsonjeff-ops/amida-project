@@ -209,6 +209,13 @@ const POSES = {
     kneeR: 5, kipAngle: 210, tzitzit: 0,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
   },
+  toes: {
+    footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
+    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
+    footY: 203,
+  },
 
   // ── Three Steps Back ──────────────────────────────────────────────────
   // V-shape geometry: shinAngle=thighAngle=286° → leg tilts up-right, ~46px spread.
@@ -259,7 +266,7 @@ const POSES = {
 
 // ── Forward kinematics: angles → joint world positions ──────────
 function fkCompute(p) {
-  const foot     = [p.footX, FOOT_Y];
+  const foot     = [p.footX, p.footY !== undefined ? p.footY : FOOT_Y];
   const knee     = addScaled(foot,     vec(p.shinAngle),       LIMBS.shin);
   const hip      = addScaled(knee,     vec(p.thighAngle),      LIMBS.thigh);
   const spineV   = vec(p.spineAngle);
@@ -436,6 +443,8 @@ function lerpJoints(A, B, t) {
     swingThighAngle: lerpAngle(A.swingThighAngle, B.swingThighAngle, t),
     swingShinAngle:  lerpAngle(A.swingShinAngle,  B.swingShinAngle,  t),
     swingKneeR:      lerp(A.swingKneeR, B.swingKneeR, t),
+    footY: lerp(A.footY !== undefined ? A.footY : FOOT_Y,
+                B.footY !== undefined ? B.footY : FOOT_Y, t),
   };
 }
 
@@ -580,6 +589,23 @@ function applyPoseForWord(sec, idx) {
         deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
       }
     }
+  } else if (sec === 2) {
+    if (idx === 26 || idx === 27 || idx === 28) {
+      setCue('Rise on toes — קָדוֹשׁ');
+      const doRise = () => { curPose = 'toes'; animateTo('toes'); };
+      if (curPose === 'toes') {
+        curPose = 'upright';
+        animateTo('upright', () => setTimeout(doRise, 80));
+      } else {
+        doRise();
+      }
+    } else {
+      setCue('Standing in prayer');
+      if (curPose !== 'upright') {
+        curPose = 'upright';
+        deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
+      }
+    }
   } else {
     setCue('Standing in prayer');
     if (curPose !== 'upright') {
@@ -696,6 +722,128 @@ const SECTIONS = [
       { heb: 'יְיָ',          tr: 'A-do-nai' },
       { heb: 'מְחַיֵּה',      tr: "m'cha-yeh" },
       { heb: 'הַמֵּתִים',     tr: 'ha-mei-tim' },
+    ]
+  },
+  {
+    name: 'Kedushah',
+    label: 'Kedushah · קְדוּשָׁה',
+    words: [
+      { heb: 'כֶּתֶר',        tr: 'Ke-ter' },
+      { heb: 'יִתְּנוּ',      tr: "yi-t'nu" },
+      { heb: 'לְךָ',          tr: "l'cha" },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'אֱלֹהֵינוּ',    tr: 'E-lo-hei-nu' },
+      { heb: 'מַלְאָכִים',    tr: 'mal-a-chim' },
+      { heb: 'הֲמוֹנֵי',      tr: 'ha-mo-nei' },
+      { heb: 'מַעְלָה',       tr: 'ma-a-lah' },
+      { heb: 'וְעַמְּךָ',     tr: "v'am-cha" },
+      { heb: 'יִשְׂרָאֵל',    tr: 'Yis-ra-el' },
+      { heb: 'קְבוּצֵי',      tr: "k'vu-tzei" },
+      { heb: 'מַטָּה',        tr: 'ma-tah' },
+      { heb: 'יַחַד',         tr: 'ya-chad' },
+      { heb: 'כֻּלָּם',       tr: 'ku-lam' },
+      { heb: 'קְדוּשָּׁה',    tr: "k'du-shah" },
+      { heb: 'לְךָ',          tr: "l'cha" },
+      { heb: 'יְשַׁלֵּשׁוּ',  tr: "y'sha-lei-shu" },
+      { heb: 'כַּכָּתוּב',    tr: 'ka-ka-tuv' },
+      { heb: 'עַל',           tr: 'al' },
+      { heb: 'יַד',           tr: 'yad' },
+      { heb: 'נְבִיאֶךָ',     tr: "n'vi-e-cha" },
+      { heb: 'וְקָרָא',       tr: "v'ka-ra" },
+      { heb: 'זֶה',           tr: 'zeh' },
+      { heb: 'אֶל',           tr: 'el' },
+      { heb: 'זֶה',           tr: 'zeh' },
+      { heb: 'וְאָמַר',       tr: "v'a-mar" },
+      { heb: 'קָדוֹשׁ',       tr: 'Ka-dosh' },
+      { heb: 'קָדוֹשׁ',       tr: 'Ka-dosh' },
+      { heb: 'קָדוֹשׁ',       tr: 'Ka-dosh' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'צְבָאוֹת',      tr: "Tz'va-ot" },
+      { heb: 'מְלֹא',         tr: "m'lo" },
+      { heb: 'כָל',           tr: 'chol' },
+      { heb: 'הָאָרֶץ',       tr: 'ha-a-retz' },
+      { heb: 'כְּבוֹדוֹ',     tr: "k'vo-do" },
+      { heb: 'לְעֻמָּתָם',    tr: "l'u-ma-tam" },
+      { heb: 'מְשָׁרְתָיו',   tr: "m'sha-r'tav" },
+      { heb: 'שׁוֹאֲלִים',    tr: 'sho-a-lim' },
+      { heb: 'זֶה',           tr: 'zeh' },
+      { heb: 'לָזֶה',         tr: 'la-zeh' },
+      { heb: 'אַיֵּה',        tr: 'a-yeh' },
+      { heb: 'מְקוֹם',        tr: "m'kom" },
+      { heb: 'כְּבוֹדוֹ',     tr: "k'vo-do" },
+      { heb: 'לְעֻמָּתָם',    tr: "l'u-ma-tam" },
+      { heb: 'בָּרוּךְ',      tr: 'Ba-ruch' },
+      { heb: 'יֹאמֵרוּ',      tr: 'yo-me-ru' },
+      { heb: 'בָּרוּךְ',      tr: 'Ba-ruch' },
+      { heb: 'כְּבוֹד',       tr: "k'vod" },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'מִמְּקוֹמוֹ',   tr: "mi-m'ko-mo" },
+      { heb: 'מִמְּקוֹמוֹ',   tr: "mi-m'ko-mo" },
+      { heb: 'יִפֶּן',        tr: 'yi-fen' },
+      { heb: 'בְּרַחֲמָיו',   tr: "b'ra-cha-mav" },
+      { heb: 'לְעַמּוֹ',      tr: "l'a-mo" },
+      { heb: 'הַמְּיַחֲדִים',  tr: "ha-m'ya-cha-dim" },
+      { heb: 'שְׁמוֹ',        tr: "sh'mo" },
+      { heb: 'עֶרֶב',         tr: 'e-rev' },
+      { heb: 'וָבֹקֶר',       tr: 'va-vo-ker' },
+      { heb: 'בְּכָל',        tr: "b'chol" },
+      { heb: 'יוֹם',          tr: 'yom' },
+      { heb: 'תָּמִיד',       tr: 'ta-mid' },
+      { heb: 'פַּעֲמַיִם',    tr: 'pa-a-ma-yim' },
+      { heb: 'בְּאַהֲבָה',    tr: "b'a-ha-vah" },
+      { heb: 'שְׁמַע',        tr: "Sh'ma" },
+      { heb: 'אוֹמְרִים',     tr: "om'rim" },
+      { heb: 'שְׁמַע',        tr: "Sh'ma" },
+      { heb: 'יִשְׂרָאֵל',    tr: 'Yis-ra-el' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'אֱלֹהֵינוּ',    tr: 'E-lo-hei-nu' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'אֶחָד',         tr: 'E-chad' },
+      { heb: 'הוּא',          tr: 'Hu' },
+      { heb: 'אֱלֹהֵינוּ',    tr: 'E-lo-hei-nu' },
+      { heb: 'הוּא',          tr: 'Hu' },
+      { heb: 'אָבִינוּ',       tr: 'A-vi-nu' },
+      { heb: 'הוּא',          tr: 'Hu' },
+      { heb: 'מַלְכֵּנוּ',    tr: 'Mal-kei-nu' },
+      { heb: 'הוּא',          tr: 'Hu' },
+      { heb: 'מוֹשִׁיעֵנוּ',  tr: 'Mo-shi-ei-nu' },
+      { heb: 'וְהוּא',        tr: "v'Hu" },
+      { heb: 'יַשְׁמִיעֵנוּ', tr: 'yash-mi-ei-nu' },
+      { heb: 'בְּרַחֲמָיו',   tr: "b'ra-cha-mav" },
+      { heb: 'שֵׁנִית',       tr: 'shei-nit' },
+      { heb: 'לְעֵינֵי',      tr: "l'ei-nei" },
+      { heb: 'כָל',           tr: 'chol' },
+      { heb: 'חָי',           tr: 'chai' },
+      { heb: 'לֵאמֹר',        tr: 'lei-mor' },
+      { heb: 'אַחֲרִית',      tr: 'a-cha-rit' },
+      { heb: 'כְּבָרֵאשִׁית', tr: "k'va-rei-shit" },
+      { heb: 'חֵן',           tr: 'chen' },
+      { heb: 'וּבְדִבְרֵי',   tr: "u-v'div-rei" },
+      { heb: 'קָדְשְׁךָ',     tr: "kod-sh'cha" },
+      { heb: 'כָּתוּב',       tr: 'ka-tuv' },
+      { heb: 'לֵאמֹר',        tr: 'lei-mor' },
+      { heb: 'יִמְלֹךְ',      tr: 'yim-loch' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'לְעוֹלָם',      tr: "l'o-lam" },
+      { heb: 'אֱלֹהַיִךְ',    tr: 'E-lo-ha-yich' },
+      { heb: 'צִיּוֹן',       tr: 'Tzi-yon' },
+      { heb: 'לְדֹר',         tr: "l'dor" },
+      { heb: 'וָדֹר',         tr: 'va-dor' },
+      { heb: 'הַלְלוּיָהּ',   tr: "Ha-l'lu-yah" },
+      { heb: 'אַתָּה',        tr: 'a-tah' },
+      { heb: 'קָדוֹשׁ',       tr: 'ka-dosh' },
+      { heb: 'וְשִׁמְךָ',     tr: "v'shim-cha" },
+      { heb: 'קָדוֹשׁ',       tr: 'ka-dosh' },
+      { heb: 'וּקְדוֹשִׁים',  tr: "u-k'do-shim" },
+      { heb: 'בְּכָל',        tr: "b'chol" },
+      { heb: 'יוֹם',          tr: 'yom' },
+      { heb: 'יְהַלְלוּךָ',   tr: "y'ha-l'lu-cha" },
+      { heb: 'סֶלָה',         tr: 'se-lah' },
+      { heb: 'בָּרוּךְ',      tr: 'Ba-ruch' },
+      { heb: 'אַתָּה',        tr: 'a-tah' },
+      { heb: 'יְיָ',          tr: 'A-do-nai' },
+      { heb: 'הָאֵל',         tr: 'ha-El' },
+      { heb: 'הַקָּדוֹשׁ',    tr: 'ha-Ka-dosh' },
     ]
   }
 ];
