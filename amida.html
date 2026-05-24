@@ -336,7 +336,10 @@ function setLine(el, x1,y1,x2,y2) {
 function render(j) {
   setLine(elTallit, j.tallitP1[0], j.tallitP1[1], j.tallitP2[0], j.tallitP2[1]);
   setLine(elSwingThigh, j.hip[0],       j.hip[1],       j.swingKnee[0], j.swingKnee[1]);
-  setLine(elSwingShin,  j.swingKnee[0], j.swingKnee[1], j.swingFoot[0], j.swingFoot[1]);
+  const ssDx = j.swingFoot[0] - j.swingKnee[0], ssDy = j.swingFoot[1] - j.swingKnee[1];
+  const ssD  = Math.hypot(ssDx, ssDy) || 1;
+  setLine(elSwingShin, j.swingKnee[0], j.swingKnee[1],
+          j.swingFoot[0] - ssDx/ssD*2.5, j.swingFoot[1] - ssDy/ssD*2.5);
   elSwingKnee.setAttribute('cx', j.swingKnee[0].toFixed(2));
   elSwingKnee.setAttribute('cy', j.swingKnee[1].toFixed(2));
   elSwingKnee.setAttribute('r',  j.swingKneeR.toFixed(2));
