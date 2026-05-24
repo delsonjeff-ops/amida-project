@@ -217,43 +217,41 @@ const POSES = {
   },
 
   // ── Three Steps Back ──────────────────────────────────────────────────
-  // V-shape geometry: shinAngle=thighAngle=286° → leg tilts up-right, ~46px spread.
-  // Each step footX advances by 46px (swing foot becomes next stance foot).
-  // stepBack3: feet together at x=202, upright.
+  // Shuffle geometry: shinAngle=thighAngle=275° → leg tilts 5° off vertical.
+  // Each step footX advances by 15px; stepBack3 feet together at x=140.
   stepBack1: {
-    footX: 110, shinAngle: 280, thighAngle: 280, spineAngle: 270,
+    footX: 110, shinAngle: 275, thighAngle: 275, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
-    swingThighAngle: 80, swingShinAngle: 80, swingKneeR: 0, isStep: true,
+    swingThighAngle: 85, swingShinAngle: 85, swingKneeR: 0, isStep: true,
   },
   stepBack2: {
-    footX: 139, shinAngle: 280, thighAngle: 280, spineAngle: 270,
+    footX: 125, shinAngle: 275, thighAngle: 275, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
-    swingThighAngle: 80, swingShinAngle: 80, swingKneeR: 0, isStep: true,
+    swingThighAngle: 85, swingShinAngle: 85, swingKneeR: 0, isStep: true,
   },
   stepBack3: {
-    footX: 168, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    footX: 140, shinAngle: 270, thighAngle: 270, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0, isStep: true,
   },
 
   // ── Three Steps Forward ───────────────────────────────────────────────
-  // Mirror of stepBack: shinAngle=thighAngle=254° (270°−16°, tilts left/forward).
-  // swingThighAngle/swingShinAngle=106° (mirror of 74°) → swing foot lands ~46px left.
+  // Mirror of stepBack: shinAngle=thighAngle=265° (270°−5°, tilts forward).
   // stepForward3: feet together at x=110, upright.
   stepForward1: {
-    footX: 168, shinAngle: 260, thighAngle: 260, spineAngle: 270,
+    footX: 140, shinAngle: 265, thighAngle: 265, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
-    swingThighAngle: 100, swingShinAngle: 100, swingKneeR: 0, isStep: true,
+    swingThighAngle: 95, swingShinAngle: 95, swingKneeR: 0, isStep: true,
   },
   stepForward2: {
-    footX: 139, shinAngle: 260, thighAngle: 260, spineAngle: 270,
+    footX: 125, shinAngle: 265, thighAngle: 265, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
-    swingThighAngle: 100, swingShinAngle: 100, swingKneeR: 0, isStep: true,
+    swingThighAngle: 95, swingShinAngle: 95, swingKneeR: 0, isStep: true,
   },
   stepForward3: {
     footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
@@ -481,7 +479,7 @@ function solveKneeIK(hipX, hipY, footX, footY, L1, L2) {
 // Hip X = midpoint of both feet. Hip Y derived from stance leg geometry.
 // Swing knee solved via 2-bone IK so it bends naturally throughout the arc.
 function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
-  const LIFT       = 8;
+  const LIFT       = 3;
   const movingX    = lerp(movingStart, movingEnd, t);
   const movingY    = FOOT_Y - LIFT * Math.sin(t * Math.PI);  // arc over ground
   const halfSpread = (movingX - stanceX) / 2;
