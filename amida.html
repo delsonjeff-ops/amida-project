@@ -688,6 +688,27 @@ function applyPoseForWord(sec, idx) {
         deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
       }
     }
+  } else if (sec === 6) {
+    // Sim Shalom: closing בָּרוּךְ אַתָּה יְיָ at indices 46/47/48
+    if (idx === 46) {
+      setCue('Bend knees on בָּרוּךְ');
+      curPose = 'knees';
+      animateTo('knees');
+    } else if (idx === 47) {
+      setCue('Bow forward on אַתָּה');
+      curPose = 'bow';
+      animateTo('bow');
+    } else if (idx === 48) {
+      setCue('Rise on יְיָ');
+      curPose = 'upright';
+      animateTo('upright');
+    } else {
+      setCue('Standing in prayer');
+      if (curPose !== 'upright') {
+        curPose = 'upright';
+        deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
+      }
+    }
   } else {
     setCue('Standing in prayer');
     if (curPose !== 'upright') {
@@ -1216,6 +1237,66 @@ const SECTIONS = [
       { heb: 'וּלְךָ',          tr: "u-l'cha" },
       { heb: 'נָאֶה',           tr: "na-eh" },
       { heb: 'לְהוֹדוֹת',       tr: "l'ho-dot" },
+    ]
+  },
+  {
+    name: 'Sim Shalom',
+    label: "Sim Shalom · שִׂים שָׁלוֹם",
+    words: [
+      { heb: 'שִׂים',           tr: "Sim" },
+      { heb: 'שָׁלוֹם',         tr: "sha-lom" },
+      { heb: 'טוֹבָה',          tr: "to-vah" },
+      { heb: 'וּבְרָכָה',       tr: "u-v'ra-chah" },
+      { heb: 'חַיִּים',         tr: "cha-yim" },
+      { heb: 'חֵן',             tr: "chein" },
+      { heb: 'וָחֶסֶד',         tr: "va-che-sed" },
+      { heb: 'וְרַחֲמִים',      tr: "v'ra-cha-mim" },
+      { heb: 'עָלֵינוּ',        tr: "a-lei-nu" },
+      { heb: 'וְעַל',           tr: "v'al" },
+      { heb: 'כָּל',            tr: "kol" },
+      { heb: 'יִשְׂרָאֵל',      tr: "Yis-ra-el" },
+      { heb: 'עַמֶּךָ',         tr: "a-me-cha" },
+      { heb: 'בָּרְכֵנוּ',      tr: "bar-chei-nu" },
+      { heb: 'אָבִינוּ',        tr: "a-vi-nu" },
+      { heb: 'כֻּלָּנוּ',       tr: "ku-la-nu" },
+      { heb: 'כְּאֶחָד',        tr: "k'e-chad" },
+      { heb: 'בְּאוֹר',         tr: "b'or" },
+      { heb: 'פָּנֶיךָ',        tr: "pa-ne-cha" },
+      { heb: 'כִּי',            tr: "ki" },
+      { heb: 'בְאוֹר',          tr: "v'or" },
+      { heb: 'פָּנֶיךָ',        tr: "pa-ne-cha" },
+      { heb: 'נָתַתָּ',         tr: "na-ta-ta" },
+      { heb: 'לָּנוּ',          tr: "la-nu" },
+      { heb: 'יְיָ',            tr: "A-do-nai" },
+      { heb: 'אֱלֹהֵינוּ',      tr: "E-lo-hei-nu" },
+      { heb: 'תּוֹרַת',         tr: "to-rat" },
+      { heb: 'חַיִּים',         tr: "cha-yim" },
+      { heb: 'וְאַהֲבַת',       tr: "v'a-ha-vat" },
+      { heb: 'חֶסֶד',           tr: "che-sed" },
+      { heb: 'וּצְדָקָה',       tr: "u-tz'da-kah" },
+      { heb: 'וּבְרָכָה',       tr: "u-v'ra-chah" },
+      { heb: 'וְרַחֲמִים',      tr: "v'ra-cha-mim" },
+      { heb: 'וְחַיִּים',       tr: "v'cha-yim" },
+      { heb: 'וְשָׁלוֹם',       tr: "v'sha-lom" },
+      { heb: 'וְטוֹב',          tr: "v'tov" },
+      { heb: 'בְּעֵינֶיךָ',     tr: "b'ei-ne-cha" },
+      { heb: 'לְבָרֵךְ',        tr: "l'va-reich" },
+      { heb: 'אֶת',             tr: "et" },
+      { heb: 'עַמְּךָ',         tr: "am-cha" },
+      { heb: 'יִשְׂרָאֵל',      tr: "Yis-ra-el" },
+      { heb: 'בְּכָל',          tr: "b'chol" },
+      { heb: 'עֵת',             tr: "eit" },
+      { heb: 'וּבְכָל',         tr: "u-v'chol" },
+      { heb: 'שָׁעָה',          tr: "sha-ah" },
+      { heb: 'בִּשְׁלוֹמֶךָ',   tr: "bish-lo-me-cha" },
+      { heb: 'בָּרוּךְ',        tr: "Ba-ruch" },
+      { heb: 'אַתָּה',          tr: "a-tah" },
+      { heb: 'יְיָ',            tr: "A-do-nai" },
+      { heb: 'הַמְבָרֵךְ',      tr: "ha-m'va-reich" },
+      { heb: 'אֶת',             tr: "et" },
+      { heb: 'עַמּוֹ',          tr: "a-mo" },
+      { heb: 'יִשְׂרָאֵל',      tr: "Yis-ra-el" },
+      { heb: 'בַּשָּׁלוֹם',     tr: "ba-sha-lom" },
     ]
   }
 ];
