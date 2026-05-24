@@ -340,7 +340,10 @@ function render(j) {
   elSwingKnee.setAttribute('cx', j.swingKnee[0].toFixed(2));
   elSwingKnee.setAttribute('cy', j.swingKnee[1].toFixed(2));
   elSwingKnee.setAttribute('r',  j.swingKneeR.toFixed(2));
-  setLine(elShin,   j.foot[0],     j.foot[1],     j.knee[0],     j.knee[1]);
+  // Pull foot endpoint back by stroke-radius so round cap ends exactly at ankle
+  const shinDx = j.foot[0] - j.knee[0], shinDy = j.foot[1] - j.knee[1];
+  const shinD  = Math.hypot(shinDx, shinDy) || 1;
+  setLine(elShin, j.foot[0] - shinDx/shinD*2.5, j.foot[1] - shinDy/shinD*2.5, j.knee[0], j.knee[1]);
   setLine(elThigh,  j.knee[0],     j.knee[1],     j.hip[0],      j.hip[1]);
   // Spine: stop 2.5px short of shoulder to leave a subtle neck gap
   const spineDx = j.shoulder[0] - j.hip[0];
