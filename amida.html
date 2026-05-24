@@ -637,6 +637,27 @@ function applyPoseForWord(sec, idx) {
         deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
       }
     }
+  } else if (sec === 4) {
+    // Retzei: closing בָּרוּךְ אַתָּה יְיָ at indices 28/29/30
+    if (idx === 28) {
+      setCue('Bend knees on בָּרוּךְ');
+      curPose = 'knees';
+      animateTo('knees');
+    } else if (idx === 29) {
+      setCue('Bow forward on אַתָּה');
+      curPose = 'bow';
+      animateTo('bow');
+    } else if (idx === 30) {
+      setCue('Rise on יְיָ');
+      curPose = 'upright';
+      animateTo('upright');
+    } else {
+      setCue('Standing in prayer');
+      if (curPose !== 'upright') {
+        curPose = 'upright';
+        deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
+      }
+    }
   } else {
     setCue('Standing in prayer');
     if (curPose !== 'upright') {
@@ -1032,6 +1053,46 @@ const SECTIONS = [
       { heb: 'יְיָ',             tr: "A-do-nai" },
       { heb: 'מְקַדֵּשׁ',        tr: "m'ka-deish" },
       { heb: 'הַשַּׁבָּת',       tr: "ha-Sha-bat" },
+    ]
+  },
+  {
+    name: 'Retzei',
+    label: "Retzei · רְצֵה",
+    words: [
+      { heb: 'רְצֵה',           tr: "R'tzei" },
+      { heb: 'יְיָ',            tr: "A-do-nai" },
+      { heb: 'אֱלֹהֵינוּ',      tr: "E-lo-hei-nu" },
+      { heb: 'בְּעַמְּךָ',      tr: "b'am-cha" },
+      { heb: 'יִשְׂרָאֵל',      tr: "Yis-ra-el" },
+      { heb: 'וְלִתְפִלָּתָם',  tr: "v'li-t'fi-la-tam" },
+      { heb: 'שְׁעֵה',          tr: "sh'ei" },
+      { heb: 'וְהָשֵׁב',        tr: "v'ha-sheiv" },
+      { heb: 'הָעֲבוֹדָה',      tr: "ha-a-vo-dah" },
+      { heb: 'לִדְבִיר',        tr: "lid-vir" },
+      { heb: 'בֵּיתֶךָ',        tr: "bei-te-cha" },
+      { heb: 'וְאִשֵּׁי',       tr: "v'i-shei" },
+      { heb: 'יִשְׂרָאֵל',      tr: "Yis-ra-el" },
+      { heb: 'וּתְפִלָּתָם',    tr: "u-t'fi-la-tam" },
+      { heb: 'בְּאַהֲבָה',      tr: "b'a-ha-vah" },
+      { heb: 'תְּקַבֵּל',       tr: "t'ka-beil" },
+      { heb: 'בְּרָצוֹן',       tr: "b'ra-tzon" },
+      { heb: 'וּתְהִי',         tr: "u-t'hi" },
+      { heb: 'לְרָצוֹן',        tr: "l'ra-tzon" },
+      { heb: 'תָּמִיד',         tr: "ta-mid" },
+      { heb: 'עֲבוֹדַת',        tr: "a-vo-dat" },
+      { heb: 'יִשְׂרָאֵל',      tr: "Yis-ra-el" },
+      { heb: 'עַמֶּךָ',         tr: "a-me-cha" },
+      { heb: 'וְתֶחֱזֶינָה',    tr: "v'te-che-zei-nah" },
+      { heb: 'עֵינֵינוּ',       tr: "ei-nei-nu" },
+      { heb: 'בְּשׁוּבְךָ',     tr: "b'shuv-cha" },
+      { heb: 'לְצִיּוֹן',       tr: "l'Tzi-yon" },
+      { heb: 'בְּרַחֲמִים',     tr: "b'ra-cha-mim" },
+      { heb: 'בָּרוּךְ',        tr: "Ba-ruch" },
+      { heb: 'אַתָּה',          tr: "a-tah" },
+      { heb: 'יְיָ',            tr: "A-do-nai" },
+      { heb: 'הַמַּחֲזִיר',     tr: "ha-ma-cha-zir" },
+      { heb: 'שְׁכִינָתוֹ',     tr: "sh'chi-na-to" },
+      { heb: 'לְצִיּוֹן',       tr: "l'Tzi-yon" },
     ]
   }
 ];
