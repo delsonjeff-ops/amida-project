@@ -218,7 +218,7 @@ const POSES = {
 
   // ── Three Steps Back ──────────────────────────────────────────────────
   // Shuffle geometry: shinAngle=thighAngle=272° → leg tilts 2° off vertical.
-  // Each step footX advances by 20px; stepBack3 feet together at x=150.
+  // Each step footX advances by 30px; stepBack3 feet together at x=170.
   stepBack1: {
     footX: 110, shinAngle: 272, thighAngle: 272, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
@@ -226,13 +226,13 @@ const POSES = {
     swingThighAngle: 88, swingShinAngle: 88, swingKneeR: 0, isStep: true,
   },
   stepBack2: {
-    footX: 130, shinAngle: 272, thighAngle: 272, spineAngle: 270,
+    footX: 140, shinAngle: 272, thighAngle: 272, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 88, swingShinAngle: 88, swingKneeR: 0, isStep: true,
   },
   stepBack3: {
-    footX: 150, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    footX: 170, shinAngle: 270, thighAngle: 270, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0, isStep: true,
@@ -242,13 +242,13 @@ const POSES = {
   // Mirror of stepBack: shinAngle=thighAngle=268° (270°−2°, tilts forward).
   // stepForward3: feet together at x=110, upright.
   stepForward1: {
-    footX: 150, shinAngle: 268, thighAngle: 268, spineAngle: 270,
+    footX: 170, shinAngle: 268, thighAngle: 268, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 92, swingShinAngle: 92, swingKneeR: 0, isStep: true,
   },
   stepForward2: {
-    footX: 130, shinAngle: 268, thighAngle: 268, spineAngle: 270,
+    footX: 140, shinAngle: 268, thighAngle: 268, spineAngle: 270,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
     kneeR: 0, kipAngle: 270, tzitzit: 1,
     swingThighAngle: 92, swingShinAngle: 92, swingKneeR: 0, isStep: true,
@@ -399,6 +399,7 @@ function setCue(text) {
 
 // ── Animation: lerp angles → FK each frame ─────────────────────
 const DURATION = 580;
+const STEP_DURATION = 750;
 let rafId = null, animStart = null;
 let liveAngles = JSON.parse(JSON.stringify(POSES.upright));
 let rockRafId = null, rockStartTime = null;
@@ -425,6 +426,7 @@ function startRocking() {
 
 function lerp(a,b,t) { return a + (b-a)*t; }
 function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+function easeStep(t) { return (1 - Math.cos(t * Math.PI)) / 2; }
 function lerpAngle(a, b, t) {
   let diff = b - a;
   while (diff >  180) diff -= 360;
@@ -487,7 +489,9 @@ function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
   const hipX       = stanceX + halfSpread;
   const hipY       = FOOT_Y - Math.sqrt(Math.max(0, legLen * legLen - halfSpread * halfSpread));
 
-  const stanceLegAngle  = svgAngleDeg(hipX - stanceX, hipY - FOOT_Y);
+  const rawStanceLegAngle = svgAngleDeg(hipX - stanceX, hipY - FOOT_Y);
+  const legBlend          = Math.min(1, t * 3);  // blend from fromAngles into IK over first ~33%
+  const stanceLegAngle    = lerpAngle(A.shinAngle !== undefined ? A.shinAngle : 270, rawStanceLegAngle, legBlend);
   const sk              = solveKneeIK(hipX, hipY, movingX, movingY, LIMBS.thigh, LIMBS.shin);
   const swingThighAngle = (Math.atan2(sk.y - hipY,    sk.x - hipX)    * 180 / Math.PI + 360) % 360;
   const swingShinAngle  = (Math.atan2(movingY - sk.y, movingX - sk.x) * 180 / Math.PI + 360) % 360;
@@ -528,8 +532,8 @@ function animateTo(poseName, onDone) {
 
   function step(ts) {
     if (!animStart) animStart = ts;
-    const raw = (ts - animStart) / DURATION;
-    const t   = ease(Math.min(raw, 1));
+    const raw = (ts - animStart) / (isStepTrans ? STEP_DURATION : DURATION);
+    const t   = (isStepTrans ? easeStep : ease)(Math.min(raw, 1));
     liveAngles = isStepTrans
       ? lerpStep(fromAngles, toAngles, t, stanceX, movingStart, movingEnd)
       : lerpJoints(fromAngles, toAngles, t);
