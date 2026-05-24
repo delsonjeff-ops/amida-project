@@ -616,6 +616,27 @@ function applyPoseForWord(sec, idx) {
         deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
       }
     }
+  } else if (sec === 3) {
+    // Tikant Shabbat: closing בָּרוּךְ אַתָּה יְיָ at indices 146/147/148
+    if (idx === 146) {
+      setCue('Bend knees on בָּרוּךְ');
+      curPose = 'knees';
+      animateTo('knees');
+    } else if (idx === 147) {
+      setCue('Bow forward on אַתָּה');
+      curPose = 'bow';
+      animateTo('bow');
+    } else if (idx === 148) {
+      setCue('Rise on יְיָ');
+      curPose = 'upright';
+      animateTo('upright');
+    } else {
+      setCue('Standing in prayer');
+      if (curPose !== 'upright') {
+        curPose = 'upright';
+        deferredUpright = setTimeout(() => { deferredUpright = null; animateTo('upright'); }, 100);
+      }
+    }
   } else {
     setCue('Standing in prayer');
     if (curPose !== 'upright') {
@@ -914,6 +935,103 @@ const SECTIONS = [
       { heb: 'נַעֲשֶׂה',         tr: "na-a-seh" },
       { heb: 'וְנַקְרִיב',       tr: "v'nak-riv" },
       { heb: 'לְפָנֶיךָ',        tr: "l'fa-ne-cha" },
+      { heb: 'בְּאַהֲבָה',       tr: "b'a-ha-vah" },
+      { heb: 'כְּמִצְוַת',       tr: "k'mitz-vat" },
+      { heb: 'רְצוֹנֶךָ',        tr: "r'tzo-ne-cha" },
+      { heb: 'כְּמוֹ',           tr: "k'mo" },
+      { heb: 'שֶׁכָּתַבְתָּ',    tr: "she-ka-tav-ta" },
+      { heb: 'עָלֵינוּ',         tr: "a-lei-nu" },
+      { heb: 'בְּתוֹרָתֶךָ',     tr: "b'to-ra-te-cha" },
+      { heb: 'עַל',              tr: "al" },
+      { heb: 'יְדֵי',            tr: "y'dei" },
+      { heb: 'מֹשֶׁה',           tr: "Mo-sheh" },
+      { heb: 'עַבְדֶּךָ',        tr: "av-de-cha" },
+      { heb: 'מִפִּי',           tr: "mi-pi" },
+      { heb: 'כְבוֹדֶךָ',        tr: "ch'vo-de-cha" },
+      { heb: 'כָּאָמוּר',        tr: "ka-a-mur" },
+      { heb: 'וּבְיוֹם',         tr: "u-v'yom" },
+      { heb: 'הַשַּׁבָּת',       tr: "ha-Sha-bat" },
+      { heb: 'שְׁנֵי',           tr: "sh'nei" },
+      { heb: 'כְבָשִׂים',        tr: "ch'va-sim" },
+      { heb: 'בְּנֵי',           tr: "b'nei" },
+      { heb: 'שָׁנָה',           tr: "sha-nah" },
+      { heb: 'תְּמִימִם',        tr: "t'mi-mim" },
+      { heb: 'וּשְׁנֵי',         tr: "ush-nei" },
+      { heb: 'עֶשְׂרֹנִים',      tr: "es-ro-nim" },
+      { heb: 'סֹלֶת',            tr: "so-let" },
+      { heb: 'מִנְחָה',          tr: "min-chah" },
+      { heb: 'בְּלוּלָה',        tr: "b'lu-lah" },
+      { heb: 'בַשֶּׁמֶן',        tr: "va-she-men" },
+      { heb: 'וְנִסְכּוֹ',       tr: "v'nis-ko" },
+      { heb: 'עֹלַת',            tr: "o-lat" },
+      { heb: 'שַׁבָּת',          tr: "Sha-bat" },
+      { heb: 'בְּשַׁבַּתּוֹ',    tr: "b'sha-ba-to" },
+      { heb: 'עַל',              tr: "al" },
+      { heb: 'עֹלַת',            tr: "o-lat" },
+      { heb: 'הַתָּמִיד',        tr: "ha-ta-mid" },
+      { heb: 'וְנִסְכָּהּ',      tr: "v'nis-kah" },
+      { heb: 'יִשְׂמְחוּ',       tr: "yis-m'chu" },
+      { heb: 'בְמַלְכוּתְךָ',    tr: "b'mal-chut-cha" },
+      { heb: 'שׁוֹמְרֵי',        tr: "shom-rei" },
+      { heb: 'שַׁבָּת',          tr: "Sha-bat" },
+      { heb: 'וְקוֹרְאֵי',       tr: "v'kor-ei" },
+      { heb: 'עֹנֶג',            tr: "o-neg" },
+      { heb: 'עַם',              tr: "am" },
+      { heb: 'מְקַדְּשֵׁי',      tr: "m'ka-d'shei" },
+      { heb: 'שְׁבִיעִי',        tr: "sh'vi-i" },
+      { heb: 'כֻּלָּם',          tr: "ku-lam" },
+      { heb: 'יִשְׂבְּעוּ',      tr: "yis-b'u" },
+      { heb: 'וְיִתְעַנְּגוּ',   tr: "v'yit-an-gu" },
+      { heb: 'מִטּוּבֶךָ',       tr: "mi-tu-ve-cha" },
+      { heb: 'וּבַשְּׁבִיעִי',   tr: "u-va-sh'vi-i" },
+      { heb: 'רָצִיתָ',          tr: "ra-tzi-ta" },
+      { heb: 'בּוֹ',             tr: "bo" },
+      { heb: 'וְקִדַּשְׁתּוֹ',   tr: "v'ki-dash-to" },
+      { heb: 'חֶמְדַּת',         tr: "chem-dat" },
+      { heb: 'יָמִים',           tr: "ya-mim" },
+      { heb: 'אוֹתוֹ',           tr: "o-to" },
+      { heb: 'קָרָאתָ',          tr: "ka-ra-ta" },
+      { heb: 'זֵכֶר',            tr: "ze-cher" },
+      { heb: 'לְמַעֲשֵׂה',       tr: "l'ma-a-seh" },
+      { heb: 'בְרֵאשִׁית',       tr: "v'rei-shit" },
+      { heb: 'אֱלֹהֵינוּ',       tr: "E-lo-hei-nu" },
+      { heb: 'וֵאלֹהֵי',         tr: "vei-lo-hei" },
+      { heb: 'אֲבוֹתֵינוּ',      tr: "a-vo-tei-nu" },
+      { heb: 'רְצֵה',            tr: "r'tzei" },
+      { heb: 'נָא',              tr: "na" },
+      { heb: 'בִמְנוּחָתֵנוּ',   tr: "vim-nu-cha-tei-nu" },
+      { heb: 'קַדְּשֵׁנוּ',      tr: "ka-d'shei-nu" },
+      { heb: 'בְּמִצְוֹתֶיךָ',   tr: "b'mitz-vo-te-cha" },
+      { heb: 'וְתֵן',            tr: "v'tein" },
+      { heb: 'חֶלְקֵנוּ',        tr: "chel-kei-nu" },
+      { heb: 'בְּתוֹרָתֶךָ',     tr: "b'to-ra-te-cha" },
+      { heb: 'שַׂבְּעֵנוּ',      tr: "sa-b'ei-nu" },
+      { heb: 'מִטּוּבֶךָ',       tr: "mi-tu-ve-cha" },
+      { heb: 'וְשַׂמַּח',        tr: "v'sa-mei-ach" },
+      { heb: 'נַפְשֵׁנוּ',       tr: "naf-shei-nu" },
+      { heb: 'בִּישׁוּעָתֶךָ',   tr: "bi-shu-a-te-cha" },
+      { heb: 'וְטַהֵר',          tr: "v'ta-heir" },
+      { heb: 'לִבֵּנוּ',         tr: "li-bei-nu" },
+      { heb: 'לְעָבְדְּךָ',      tr: "l'ov-d'cha" },
+      { heb: 'בֶּאֱמֶת',         tr: "be-e-met" },
+      { heb: 'וְהַנְחִילֵנוּ',   tr: "v'han-chi-lei-nu" },
+      { heb: 'יְיָ',             tr: "A-do-nai" },
+      { heb: 'אֱלֹהֵינוּ',       tr: "E-lo-hei-nu" },
+      { heb: 'בְּאַהֲבָה',       tr: "b'a-ha-vah" },
+      { heb: 'וּבְרָצוֹן',       tr: "u-v'ra-tzon" },
+      { heb: 'שַׁבַּת',          tr: "Sha-bat" },
+      { heb: 'קָדְשֶׁךָ',        tr: "kod-she-cha" },
+      { heb: 'וְיָנוּחוּ',       tr: "v'ya-nu-chu" },
+      { heb: 'בוֹ',              tr: "bo" },
+      { heb: 'כָּל',             tr: "kol" },
+      { heb: 'יִשְׂרָאֵל',       tr: "Yis-ra-el" },
+      { heb: 'מְקַדְּשֵׁי',      tr: "m'ka-d'shei" },
+      { heb: 'שְׁמֶךָ',          tr: "sh'me-cha" },
+      { heb: 'בָּרוּךְ',         tr: "Ba-ruch" },
+      { heb: 'אַתָּה',           tr: "a-tah" },
+      { heb: 'יְיָ',             tr: "A-do-nai" },
+      { heb: 'מְקַדֵּשׁ',        tr: "m'ka-deish" },
+      { heb: 'הַשַּׁבָּת',       tr: "ha-Sha-bat" },
     ]
   }
 ];
