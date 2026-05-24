@@ -354,8 +354,8 @@ function render(j) {
   setLine(elSiddur, j.siddurA[0],  j.siddurA[1],  j.siddurB[0],  j.siddurB[1]);
 
   const fsv = vec(j.footStubAngle !== undefined ? j.footStubAngle : 180);
-  setLine(elFootStub, j.foot[0], j.foot[1], j.foot[0] + fsv[0]*10, j.foot[1] + fsv[1]*10);
-  setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] - 10, j.swingFoot[1]);
+  setLine(elFootStub,      j.foot[0],      j.foot[1],      j.foot[0]      + fsv[0]*10, j.foot[1]      + fsv[1]*10);
+  setLine(elSwingFootStub, j.swingFoot[0], j.swingFoot[1], j.swingFoot[0] + fsv[0]*10, j.swingFoot[1] + fsv[1]*10);
 
   elHip.setAttribute('cx',   j.hip[0].toFixed(2));
   elHip.setAttribute('cy',   j.hip[1].toFixed(2));
