@@ -210,11 +210,10 @@ const POSES = {
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
   },
   toes: {
-    footX: 110, shinAngle: 270, thighAngle: 270, spineAngle: 270,
+    footX: 110, shinAngle: 255, thighAngle: 258, spineAngle: 268,
     armRootT: 0.33, upperArmAngle: 150, forearmAngle: 230, siddurAngle: 70,
-    kneeR: 0, kipAngle: 270, tzitzit: 1,
+    kneeR: 3, kipAngle: 268, tzitzit: 1,
     swingThighAngle: 90, swingShinAngle: 90, swingKneeR: 0,
-    footY: 203,
   },
 
   // ── Three Steps Back ──────────────────────────────────────────────────
@@ -266,7 +265,7 @@ const POSES = {
 
 // ── Forward kinematics: angles → joint world positions ──────────
 function fkCompute(p) {
-  const foot     = [p.footX, p.footY !== undefined ? p.footY : FOOT_Y];
+  const foot     = [p.footX, FOOT_Y];
   const knee     = addScaled(foot,     vec(p.shinAngle),       LIMBS.shin);
   const hip      = addScaled(knee,     vec(p.thighAngle),      LIMBS.thigh);
   const spineV   = vec(p.spineAngle);
@@ -443,8 +442,6 @@ function lerpJoints(A, B, t) {
     swingThighAngle: lerpAngle(A.swingThighAngle, B.swingThighAngle, t),
     swingShinAngle:  lerpAngle(A.swingShinAngle,  B.swingShinAngle,  t),
     swingKneeR:      lerp(A.swingKneeR, B.swingKneeR, t),
-    footY: lerp(A.footY !== undefined ? A.footY : FOOT_Y,
-                B.footY !== undefined ? B.footY : FOOT_Y, t),
   };
 }
 
