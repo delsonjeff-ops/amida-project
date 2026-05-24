@@ -444,35 +444,53 @@ function svgAngleDeg(dx, dy) {
   return ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360;
 }
 
-// stanceX is locked throughout. movingFoot lerps from movingStart to movingEnd.
-// Hip X = midpoint of both feet. Hip Y derived from leg length geometry.
-// Leg angles computed via IK each frame so stance foot never slides.
+// 2-bone IK: returns knee position given hip and foot.
+// Picks the knee solution where the knee bends toward the figure's facing direction (left = smaller X).
+function solveKneeIK(hipX, hipY, footX, footY, L1, L2) {
+  const dx = footX - hipX, dy = footY - hipY;
+  const d  = Math.hypot(dx, dy);
+  if (d < 1) return { x: hipX - L1, y: hipY };  // degenerate: knee straight forward
+  const dC    = Math.max(Math.abs(L1 - L2) + 0.1, Math.min(L1 + L2 - 0.1, d));
+  const alpha = Math.atan2(dy, dx);
+  const beta  = Math.acos(Math.max(-1, Math.min(1, (L1*L1 + dC*dC - L2*L2) / (2*L1*dC))));
+  const k1    = { x: hipX + Math.cos(alpha + beta) * L1, y: hipY + Math.sin(alpha + beta) * L1 };
+  const k2    = { x: hipX + Math.cos(alpha - beta) * L1, y: hipY + Math.sin(alpha - beta) * L1 };
+  return k1.x <= k2.x ? k1 : k2;  // knee toward face (left)
+}
+
+// stanceX is locked throughout. swing foot arcs off the ground via sin curve.
+// Hip X = midpoint of both feet. Hip Y derived from stance leg geometry.
+// Swing knee solved via 2-bone IK so it bends naturally throughout the arc.
 function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
+  const LIFT       = 38;
   const movingX    = lerp(movingStart, movingEnd, t);
+  const movingY    = FOOT_Y - LIFT * Math.sin(t * Math.PI);  // arc over ground
   const halfSpread = (movingX - stanceX) / 2;
   const legLen     = LIMBS.shin + LIMBS.thigh;
   const hipX       = stanceX + halfSpread;
-  const hipY       = 215 - Math.sqrt(Math.max(0, legLen * legLen - halfSpread * halfSpread));
+  const hipY       = FOOT_Y - Math.sqrt(Math.max(0, legLen * legLen - halfSpread * halfSpread));
 
-  const stanceLegAngle = svgAngleDeg(hipX - stanceX, hipY - 215);
-  const swingLegAngle  = svgAngleDeg(movingX - hipX, 215 - hipY);
+  const stanceLegAngle  = svgAngleDeg(hipX - stanceX, hipY - FOOT_Y);
+  const sk              = solveKneeIK(hipX, hipY, movingX, movingY, LIMBS.thigh, LIMBS.shin);
+  const swingThighAngle = (Math.atan2(sk.y - hipY,    sk.x - hipX)    * 180 / Math.PI + 360) % 360;
+  const swingShinAngle  = (Math.atan2(movingY - sk.y, movingX - sk.x) * 180 / Math.PI + 360) % 360;
 
   return {
     footX:           stanceX,
     shinAngle:       stanceLegAngle,
     thighAngle:      stanceLegAngle,
-    spineAngle:      lerpAngle(A.spineAngle,     B.spineAngle,     t),
-    armRootT:        lerp    (A.armRootT,         B.armRootT,        t),
-    upperArmAngle:   lerpAngle(A.upperArmAngle,  B.upperArmAngle,  t),
-    forearmAngle:    lerpAngle(A.forearmAngle,    B.forearmAngle,    t),
-    siddurAngle:     lerpAngle(A.siddurAngle,     B.siddurAngle,     t),
-    kneeR:           lerp    (A.kneeR,             B.kneeR,           t),
-    kipAngle:        lerpAngle(A.kipAngle,         B.kipAngle,        t),
-    tzitzit:         lerp    (A.tzitzit,           B.tzitzit,         t),
-    swingThighAngle: swingLegAngle,
-    swingShinAngle:  swingLegAngle,
-    swingKneeR:      lerp    (A.swingKneeR,       B.swingKneeR,      t),
-    isStep:          true,
+    spineAngle:      lerpAngle(A.spineAngle,    B.spineAngle,    t),
+    armRootT:        lerp    (A.armRootT,        B.armRootT,      t),
+    upperArmAngle:   lerpAngle(A.upperArmAngle, B.upperArmAngle, t),
+    forearmAngle:    lerpAngle(A.forearmAngle,   B.forearmAngle,  t),
+    siddurAngle:     lerpAngle(A.siddurAngle,    B.siddurAngle,   t),
+    kneeR:           lerp    (A.kneeR,            B.kneeR,         t),
+    kipAngle:        lerpAngle(A.kipAngle,        B.kipAngle,      t),
+    tzitzit:         lerp    (A.tzitzit,          B.tzitzit,       t),
+    swingThighAngle,
+    swingShinAngle,
+    swingKneeR: lerp(A.swingKneeR, B.swingKneeR, t) + 4 * Math.sin(t * Math.PI),
+    isStep:     true,
   };
 }
 
