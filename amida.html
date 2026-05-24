@@ -462,7 +462,7 @@ function solveKneeIK(hipX, hipY, footX, footY, L1, L2) {
 // Hip X = midpoint of both feet. Hip Y derived from stance leg geometry.
 // Swing knee solved via 2-bone IK so it bends naturally throughout the arc.
 function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
-  const LIFT       = 38;
+  const LIFT       = 27;
   const movingX    = lerp(movingStart, movingEnd, t);
   const movingY    = FOOT_Y - LIFT * Math.sin(t * Math.PI);  // arc over ground
   const halfSpread = (movingX - stanceX) / 2;
@@ -479,13 +479,13 @@ function lerpStep(A, B, t, stanceX, movingStart, movingEnd) {
     footX:           stanceX,
     shinAngle:       stanceLegAngle,
     thighAngle:      stanceLegAngle,
-    spineAngle:      lerpAngle(A.spineAngle,    B.spineAngle,    t),
+    spineAngle:      270,  // spine stays vertical throughout step
     armRootT:        lerp    (A.armRootT,        B.armRootT,      t),
     upperArmAngle:   lerpAngle(A.upperArmAngle, B.upperArmAngle, t),
     forearmAngle:    lerpAngle(A.forearmAngle,   B.forearmAngle,  t),
     siddurAngle:     lerpAngle(A.siddurAngle,    B.siddurAngle,   t),
     kneeR:           lerp    (A.kneeR,            B.kneeR,         t),
-    kipAngle:        lerpAngle(A.kipAngle,        B.kipAngle,      t),
+    kipAngle:        270,  // head stays upright throughout step
     tzitzit:         lerp    (A.tzitzit,          B.tzitzit,       t),
     swingThighAngle,
     swingShinAngle,
